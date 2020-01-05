@@ -73,21 +73,21 @@ clean () {
 
 language_index() {
     case $1 in
-    "en") SYN_LANG="en_US" ;;
-    "fr") SYN_LANG="fr_FR" ;;
-    "cs") SYN_LANG="cs_CZ" ;;
-    "el") SYN_LANG="el_GR" ;;
-    "da") SYN_LANG="da_DK" ;;
-    "de") SYN_LANG="de_DE" ;;
-    "hu") SYN_LANG="hu_HU" ;;
-    "it") SYN_LANG="it_IT" ;;
-    "no") SYN_LANG="no_NO" ;;
-    "pl") SYN_LANG="pl_PL" ;;
-    "pt") SYN_LANG="pt_PT" ;;
-    "ro") SYN_LANG="ro_RO" ;;
-    "ru") SYN_LANG="ru_RU" ;;
-    "sk") SYN_LANG="sk_SK" ;;
-    *) printf "Error: language not supported\n"; exit 1;;
+        "en") SYN_LANG="en_US" ;;
+        "fr") SYN_LANG="fr_FR" ;;
+        "cs") SYN_LANG="cs_CZ" ;;
+        "el") SYN_LANG="el_GR" ;;
+        "da") SYN_LANG="da_DK" ;;
+        "de") SYN_LANG="de_DE" ;;
+        "hu") SYN_LANG="hu_HU" ;;
+        "it") SYN_LANG="it_IT" ;;
+        "no") SYN_LANG="no_NO" ;;
+        "pl") SYN_LANG="pl_PL" ;;
+        "pt") SYN_LANG="pt_PT" ;;
+        "ro") SYN_LANG="ro_RO" ;;
+        "ru") SYN_LANG="ru_RU" ;;
+        "sk") SYN_LANG="sk_SK" ;;
+        *   ) printf "Error: language not supported\n"; exit 1;;
     esac
 }
 
