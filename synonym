@@ -1,0 +1,138 @@
+#!/bin/bash
+# File  : synonym
+# Author: Matthieu Petiteau <mpetiteau.pro@gmail.com>
+# Date  : 25.09.2019
+#
+#   .--.    _   __  _ .--.   .--.   _ .--.    _   __  _ .--..--.
+#  ( (`\]  [ \ [  ][ `.-. |/ .'`\ \[ `.-. |  [ \ [  ][ `.-. .-. |
+#   `'.'.   \ '/ /  | | | || \__. | | | | |   \ '/ /  | | | | | |
+#  [\__) )[\_:  /  [___||__]'.__.' [___||__][\_:  /  [___||__||__]
+#          \__.'                             \__.'
+#
+#
+# Print out synonyms from the thesaurus API.
+#
+# Dependencies: jq
+#
+# You will also need a thesaurus API key provided
+# at https://thesaurus.altervista.org/mykey
+#
+
+help() {
+    printf "
+       .--.    _   __  _ .--.   .--.   _ .--.    _   __  _ .--..--.
+      ( (\`\]  [ \ [  ][ \`.-. |/ .'\`\ \[ \`.-. |  [ \ [  ][ \`.-. .-. |
+       \`'.'.   \ '/ /  | | | || \__. | | | | |   \ '/ /  | | | | | |
+      [\__) )[\_:  /  [___||__]'.__.' [___||__][\_:  /  [___||__||__]
+              \__.'                             \__.'
+
+     synonym is a small utility tool to rapidly find synonyms directly
+     from your terminal.
+
+     The script is fetching https://www.thesaurus.com/ rest API.
+     List of languages available: en, fr, cs, el, da, de, hu, it, no,
+     pl, pt, ro, ru, sk
+
+     You will need to generate an API key to use this script, you can
+     do so at https://thesaurus.altervista.org/mykey
+
+     You will also need to install jq if you don't have it already
+     https://stedolan.github.io/jq/download/
+
+     Created by Matthieu Petiteau <mpetiteau.pro@gmail.com>
+
+     USAGE
+     -----------------------------------------------------------------
+     synonym -w <word>            Finds all synonyms for this specific
+                                  word in the default language.
+
+     synonym -w <word> -l <lang>  Finds all synonyms for this specific
+                                  word in this specific language.
+
+     synonym -h                   Show this help message and exit.
+
+    \n"
+}
+
+call() {
+    # request API
+    R=$(curl -s "$1?word=$2&language=$3&key=$4&output=json")
+}
+
+process() {
+    # process json response with jq
+    P=$(echo $1 | jq '(.response | .[] .list .synonyms)')
+}
+
+clean () {
+    # clean data set
+    C=$(echo $1 | tr "|" "\n" | tr -d '"' | sort -u)
+}
+
+language_index() {
+    case $1 in
+    "en") LANGUAGE="en_US" ;;
+    "fr") LANGUAGE="fr_FR" ;;
+    "cs") LANGUAGE="cs_CZ" ;;
+    "el") LANGUAGE="el_GR" ;;
+    "da") LANGUAGE="da_DK" ;;
+    "de") LANGUAGE="de_DE" ;;
+    "hu") LANGUAGE="hu_HU" ;;
+    "it") LANGUAGE="it_IT" ;;
+    "no") LANGUAGE="no_NO" ;;
+    "pl") LANGUAGE="pl_PL" ;;
+    "pt") LANGUAGE="pt_PT" ;;
+    "ro") LANGUAGE="ro_RO" ;;
+    "ru") LANGUAGE="ru_RU" ;;
+    "sk") LANGUAGE="sk_SK" ;;
+    *) printf "Error: language not supported\n"; exit 1;;
+    esac
+}
+
+# check if jq is installed
+if ! command -v jq &>/dev/null; then
+    printf "Error: You need to install jq to run this script\nhttps://stedolan.github.io/jq/download/\n"
+    exit 0
+fi
+
+# Load synonymrc from the possible locations
+conf_dir=($XDG_CONFIG_HOME/.synonymrc $HOME/.config/.synonymrc $HOME/.synonymrc)
+for d in "${conf_dir[@]}"; do
+    if [ -f $d ]; then
+        . $d
+        break
+    fi
+done
+
+# Args
+options="l:w:h"
+while getopts "$options" option; do
+    case "${option}" in
+    l) language_index ${OPTARG};;
+    w) WORD=${OPTARG};;
+    h) help; exit 0;;
+    esac
+done
+
+# Check args.
+if [ -z $WORD ]; then printf "Error: please specific a word in -w arg\n"; exit 1; fi
+if [ -z $KEY ]; then printf "Error: api key not found in synonymrc"; exit 1; fi
+if [ -z $LANGUAGE ]; then
+    if [ -z $SEARCH_LANG ]; then LANGUAGE="en_US";
+    else language_index $SEARCH_LANG; fi
+fi
+
+URL="https://thesaurus.altervista.org/thesaurus/v1"
+call $URL $WORD $LANGUAGE $KEY
+
+E=$(echo $R | jq '(.error)')  # check for errors
+if [ "$E" != "null" ]; then
+    printf "Error: $E\n" | tr -d '"'
+    exit 1
+else
+    # process data
+    process "$R"
+    clean "$P"
+    printf "$C\n" | column -c 120
+    exit 0
+fi

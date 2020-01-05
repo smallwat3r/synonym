@@ -1,0 +1,6 @@
+# Config file for synonym
+KEY=<API KEY>             # API KEY https://thesaurus.altervista.org/mykey
+SEARCH_LANG=en            # Default language
+                          # List of languages available:
+                          # en, fr, cs, el, da, de, hu,
+                          # it, no, pl, pt, ro, ru, sk
