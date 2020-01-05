@@ -71,7 +71,8 @@ clean () {
     C=$(echo $1 | tr '"' "|" | tr "|" "\n" | sed 's/([^)]*)//g' | sort -u)
 }
 
-# associate default language if supported by thesaurus API.
+# associate os default language if supported by thesaurus API
+# and no language in synonymrc or specify in args
 default_os_language() {
     shopt -s extglob
     # supported languages values by thesaurus
