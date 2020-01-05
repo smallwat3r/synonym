@@ -94,7 +94,7 @@ language_index() {
 # check if jq is installed
 if ! command -v jq &>/dev/null; then
     printf "Error: You need to install jq to run this script\nhttps://stedolan.github.io/jq/download/\n"
-    exit 0
+    exit 1
 fi
 
 # Load synonymrc from the possible locations
