@@ -133,6 +133,6 @@ else
     # process data
     process "$R"
     clean "$P"
-    printf "$C\n" | column -c 120
+    printf "$C\n" | column -c $(tput cols)
     exit 0
 fi
