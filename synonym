@@ -85,6 +85,7 @@ default_os_language() {
     esac
 }
 
+# associate synonymrc language option or the one specified in args
 language_index() {
     case $1 in
         "en") SYN_LANG="en_US" ;;
