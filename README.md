@@ -13,7 +13,8 @@ synonym is a small utility tool to rapidly find synonyms directly
 from your terminal.
 
 The script is fetching [thesaurus](https://www.thesaurus.com/) rest API.  
-List of languages available: 
+
+List of languages supported: 
 ```
 en, fr, cs, el, es, da, de, hu, it, no, pl, pt, ro, ru, sk
 ```
