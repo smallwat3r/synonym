@@ -30,8 +30,8 @@ help() {
      from your terminal.
 
      The script is fetching https://www.thesaurus.com/ rest API.
-     List of languages available: en, fr, cs, el, da, de, hu, it, no,
-     pl, pt, ro, ru, sk
+     List of languages available: en, fr, cs, el, es, da, de, hu, it,
+     no, pl, pt, ro, ru, sk
 
      You will need to generate an API key to use this script, you can
      do so at https://thesaurus.altervista.org/mykey
