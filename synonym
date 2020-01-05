@@ -48,8 +48,8 @@ help() {
 
      synonym -l <lang> <word>     Finds all synonyms for this specific
                                   word in this specific language.
-                                  (en, fr, cs, el, da, de, hu, it, no,
-                                  pl, pt, ro, ru, sk)
+                                  (en, fr, cs, el, es, da, de, hu, it,
+                                  no, pl, pt, ro, ru, sk)
 
      synonym -h                   Show this help message and exit.
 
@@ -71,11 +71,36 @@ clean () {
     C=$(echo $1 | tr '"' "|" | tr "|" "\n" | sed 's/([^)]*)//g' | sort -u)
 }
 
+default_os_language() {
+    # associate default language if supported by thesaurus API.
+    L=$(echo $1 | sed 's/\..*//')
+    case $L in
+        "cs_CZ") SYN_LANG=$L ;;
+        "da_DK") SYN_LANG=$L ;;
+        "de_CH") SYN_LANG=$L ;;
+        "de_DE") SYN_LANG=$L ;;
+        "en_US") SYN_LANG=$L ;;
+        "el_GR") SYN_LANG=$L ;;
+        "es_ES") SYN_LANG=$L ;;
+        "fr_FR") SYN_LANG=$L ;;
+        "hu_HU") SYN_LANG=$L ;;
+        "it_IT") SYN_LANG=$L ;;
+        "no_NO") SYN_LANG=$L ;;
+        "pl_PL") SYN_LANG=$L ;;
+        "pt_PT") SYN_LANG=$L ;;
+        "ro_RO") SYN_LANG=$L ;;
+        "ru_RU") SYN_LANG=$L ;;
+        "sk_SK") SYN_LANG=$L ;;
+        *      ) SYN_LANG="en_US" ;;  # default to en_US if not supported
+    esac
+}
+
 language_index() {
     case $1 in
         "en") SYN_LANG="en_US" ;;
         "fr") SYN_LANG="fr_FR" ;;
         "cs") SYN_LANG="cs_CZ" ;;
+        "es") SYN_LANG="es_ES" ;;
         "el") SYN_LANG="el_GR" ;;
         "da") SYN_LANG="da_DK" ;;
         "de") SYN_LANG="de_DE" ;;
@@ -119,12 +144,22 @@ done
 shift $((OPTIND - 1))
 WORD=$1
 
-# Check args.
+# Check mandatory args
 if [ -z $WORD ]; then printf "Error: please specific a word\n"; exit 1; fi
 if [ -z $KEY ]; then printf "Error: api key not found in synonymrc\n"; exit 1; fi
+
+# Pick language
 if [ -z $SYN_LANG ]; then
-    if [ -z $SEARCH_LANG ]; then SYN_LANG="en_US";
-    else language_index $SEARCH_LANG; fi
+    # language not set in args
+    if [ -z $SEARCH_LANG ]; then
+        # default language not set in synonymrc
+        # load default language from os (default to en_US if not found)
+        if ! [ -z $LANGUAGE ]; then default_os_language $LANGUAGE;
+        else default_os_language $LANG; fi
+    else
+        # loaded from synonymrc
+        language_index $SEARCH_LANG;
+    fi
 fi
 
 URL="https://thesaurus.altervista.org/thesaurus/v1"

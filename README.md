@@ -15,7 +15,7 @@ from your terminal.
 The script is fetching [thesaurus](https://www.thesaurus.com/) rest API.  
 List of languages available: 
 ```
-en, fr, cs, el, da, de, hu, it, no, pl, pt, ro, ru, sk
+en, fr, cs, el, es, da, de, hu, it, no, pl, pt, ro, ru, sk
 ```
 
 ![synonym](https://i.imgur.com/OVLuJEF.gif)  
@@ -82,6 +82,9 @@ key from thesaurus.
 KEY=myapikey    # Mandatory
 SEARCH_LANG=en
 ```
+Note: if no default language is set in `synonymrc`, it will be fetched from 
+the default os language (`$LANGUAGE` or `$LANG`). If not supported by
+Thesaurus, it will be default to `en_US`.  
 
 You are now all set-up to run synonym in your terminal.  
 
@@ -96,8 +99,8 @@ synonym <word>               Finds all synonyms for this specific
 
 synonym -l <lang> <word>     Finds all synonyms for this specific
                              word in this specific language.
-                             (en, fr, cs, el, da, de, hu, it, no,
-                             pl, pt, ro, ru, sk)
+                             (en, fr, cs, el, es, da, de, hu, it, 
+                             no, pl, pt, ro, ru, sk)
 
 synonym -h                   Show this help message and exit.
 ```
