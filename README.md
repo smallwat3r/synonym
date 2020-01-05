@@ -18,7 +18,7 @@ List of languages available:
 en, fr, cs, el, da, de, hu, it, no, pl, pt, ro, ru, sk
 ```
 
-![synonym](https://i.imgur.com/Wu7797l.gif)  
+![synonym](https://i.imgur.com/kUEbqxb.gif)  
 
 ## Dependencies
 
