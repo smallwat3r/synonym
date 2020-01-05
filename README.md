@@ -64,13 +64,21 @@ sudo wget https://raw.githubusercontent.com/smallwat3r/synonym/master/synonym \
 ```
 
 #### .synonymrc
-You will need to create a `.synonymrc` config file (in either of these locations
-`$XDG_CONFIG_HOME/.synonymrc`, `~/.config/.synonymrc`, `~/.synonymrc`)  
+You will need to create a `.synonymrc` config file in one of the loc below.  
+```sh
+# Possible config file locations (sorted by priority)
+
+$XDG_CONFIG_HOME/.synonymrc
+~/.config/.synonymrc
+~/.synonymrc
+```
+
 In this file, you can chose a default language and you will need to input your API 
 key from thesaurus.
 
 ```sh
 # .synonymrc example
+
 KEY=myapikey    # Mandatory
 SEARCH_LANG=en
 ```
@@ -93,4 +101,3 @@ synonym -l <lang> <word>     Finds all synonyms for this specific
 
 synonym -h                   Show this help message and exit.
 ```
-
