@@ -66,7 +66,7 @@ process() {
 
 clean () {
     # clean data set
-    C=$(echo $1 | tr "|" "\n" | tr -d '"' | sort -u)
+    C=$(echo $1 | tr '"' "|" | tr "|" "\n" | sed 's/([^)]*)//g' | sort -u)
 }
 
 language_index() {
