@@ -73,20 +73,20 @@ clean () {
 
 language_index() {
     case $1 in
-    "en") LANGUAGE="en_US" ;;
-    "fr") LANGUAGE="fr_FR" ;;
-    "cs") LANGUAGE="cs_CZ" ;;
-    "el") LANGUAGE="el_GR" ;;
-    "da") LANGUAGE="da_DK" ;;
-    "de") LANGUAGE="de_DE" ;;
-    "hu") LANGUAGE="hu_HU" ;;
-    "it") LANGUAGE="it_IT" ;;
-    "no") LANGUAGE="no_NO" ;;
-    "pl") LANGUAGE="pl_PL" ;;
-    "pt") LANGUAGE="pt_PT" ;;
-    "ro") LANGUAGE="ro_RO" ;;
-    "ru") LANGUAGE="ru_RU" ;;
-    "sk") LANGUAGE="sk_SK" ;;
+    "en") SYN_LANG="en_US" ;;
+    "fr") SYN_LANG="fr_FR" ;;
+    "cs") SYN_LANG="cs_CZ" ;;
+    "el") SYN_LANG="el_GR" ;;
+    "da") SYN_LANG="da_DK" ;;
+    "de") SYN_LANG="de_DE" ;;
+    "hu") SYN_LANG="hu_HU" ;;
+    "it") SYN_LANG="it_IT" ;;
+    "no") SYN_LANG="no_NO" ;;
+    "pl") SYN_LANG="pl_PL" ;;
+    "pt") SYN_LANG="pt_PT" ;;
+    "ro") SYN_LANG="ro_RO" ;;
+    "ru") SYN_LANG="ru_RU" ;;
+    "sk") SYN_LANG="sk_SK" ;;
     *) printf "Error: language not supported\n"; exit 1;;
     esac
 }
@@ -119,13 +119,13 @@ done
 # Check args.
 if [ -z $WORD ]; then printf "Error: please specific a word in -w arg\n"; exit 1; fi
 if [ -z $KEY ]; then printf "Error: api key not found in synonymrc"; exit 1; fi
-if [ -z $LANGUAGE ]; then
-    if [ -z $SEARCH_LANG ]; then LANGUAGE="en_US";
+if [ -z $SYN_LANG ]; then
+    if [ -z $SEARCH_LANG ]; then SYN_LANG="en_US";
     else language_index $SEARCH_LANG; fi
 fi
 
 URL="https://thesaurus.altervista.org/thesaurus/v1"
-call $URL $WORD $LANGUAGE $KEY
+call $URL $WORD $SYN_LANG $KEY
 
 E=$(echo $R | jq '(.error)')  # check for errors
 if [ "$E" != "null" ]; then
