@@ -56,42 +56,31 @@ help() {
     \n"
 }
 
+# request API
 call() {
-    # request API
     R=$(curl -s "$1?word=$2&language=$3&key=$4&output=json")
 }
 
+# process json response with jq
 process() {
-    # process json response with jq
     P=$(echo $1 | jq '(.response | .[] .list .synonyms)')
 }
 
+# clean data set
 clean () {
-    # clean data set
     C=$(echo $1 | tr '"' "|" | tr "|" "\n" | sed 's/([^)]*)//g' | sort -u)
 }
 
+# associate default language if supported by thesaurus API.
 default_os_language() {
-    # associate default language if supported by thesaurus API.
+    shopt -s extglob
+    # supported languages values by thesaurus
+    supported="@(cs_CZ|da_DK|de_CH|de_DE|en_US|el_GR|es_ES|fr_FR|hu_HU|
+        it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)"
     L=$(echo $1 | sed 's/\..*//')
     case $L in
-        "cs_CZ") SYN_LANG=$L ;;
-        "da_DK") SYN_LANG=$L ;;
-        "de_CH") SYN_LANG=$L ;;
-        "de_DE") SYN_LANG=$L ;;
-        "en_US") SYN_LANG=$L ;;
-        "el_GR") SYN_LANG=$L ;;
-        "es_ES") SYN_LANG=$L ;;
-        "fr_FR") SYN_LANG=$L ;;
-        "hu_HU") SYN_LANG=$L ;;
-        "it_IT") SYN_LANG=$L ;;
-        "no_NO") SYN_LANG=$L ;;
-        "pl_PL") SYN_LANG=$L ;;
-        "pt_PT") SYN_LANG=$L ;;
-        "ro_RO") SYN_LANG=$L ;;
-        "ru_RU") SYN_LANG=$L ;;
-        "sk_SK") SYN_LANG=$L ;;
-        *      ) SYN_LANG="en_US" ;;  # default to en_US if not supported
+        $supported ) SYN_LANG=$L ;;
+        *          ) SYN_LANG="en_US" ;;  # default to en_US if not supported
     esac
 }
 
