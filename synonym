@@ -43,10 +43,10 @@ help() {
 
      USAGE
      -----------------------------------------------------------------
-     synonym -w <word>            Finds all synonyms for this specific
+     synonym <word>               Finds all synonyms for this specific
                                   word in the default language.
 
-     synonym -w <word> -l <lang>  Finds all synonyms for this specific
+     synonym -l <lang> <word>     Finds all synonyms for this specific
                                   word in this specific language.
                                   (en, fr, cs, el, da, de, hu, it, no,
                                   pl, pt, ro, ru, sk)
@@ -107,18 +107,21 @@ for d in "${conf_dir[@]}"; do
 done
 
 # Args
-options="l:w:h"
+options=":l:h"
 while getopts "$options" option; do
     case "${option}" in
-    l) language_index ${OPTARG};;
-    w) WORD=${OPTARG};;
-    h) help; exit 0;;
+        l  ) language_index ${OPTARG};;
+        h  ) help; exit 0;;
+        \? ) printf "Error: invalid option: -${OPTARG}\n" >&2; exit 1;;
     esac
 done
 
+shift $((OPTIND - 1))
+WORD=$1
+
 # Check args.
-if [ -z $WORD ]; then printf "Error: please specific a word in -w arg\n"; exit 1; fi
-if [ -z $KEY ]; then printf "Error: api key not found in synonymrc"; exit 1; fi
+if [ -z $WORD ]; then printf "Error: please specific a word\n"; exit 1; fi
+if [ -z $KEY ]; then printf "Error: api key not found in synonymrc\n"; exit 1; fi
 if [ -z $SYN_LANG ]; then
     if [ -z $SEARCH_LANG ]; then SYN_LANG="en_US";
     else language_index $SEARCH_LANG; fi

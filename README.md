@@ -18,7 +18,7 @@ List of languages available:
 en, fr, cs, el, da, de, hu, it, no, pl, pt, ro, ru, sk
 ```
 
-![synonym](https://i.imgur.com/kUEbqxb.gif)  
+![synonym](https://i.imgur.com/OVLuJEF.gif)  
 
 ## Dependencies
 
@@ -73,13 +73,15 @@ You are now all set-up to run synonym in your terminal.
 ```
 USAGE
 -----------------------------------------------------------------
-synonym -w <word>            Finds all synonyms for this specific 
+
+synonym <word>               Finds all synonyms for this specific
                              word in the default language.
 
-synonym -w <word> -l <lang>  Finds all synonyms for this specific
+synonym -l <lang> <word>     Finds all synonyms for this specific
                              word in this specific language.
-                             (en, fr, cs, el, da, de, hu, it, no, 
+                             (en, fr, cs, el, da, de, hu, it, no,
                              pl, pt, ro, ru, sk)
 
 synonym -h                   Show this help message and exit.
 ```
+
