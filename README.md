@@ -63,7 +63,7 @@ In this file, you can chose a default language and you will need to input your A
 ```sh
 # .synonymrc example
 KEY=myapikey    # Mandatory
-SEARCH_LANG=fr
+SEARCH_LANG=en
 ```
 
 You are now all set-up to run synonym in your terminal.  
