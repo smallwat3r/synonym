@@ -78,6 +78,8 @@ synonym -w <word>            Finds all synonyms for this specific
 
 synonym -w <word> -l <lang>  Finds all synonyms for this specific
                              word in this specific language.
+                             (en, fr, cs, el, da, de, hu, it, no, pl, pt, 
+                             ro, ru, sk)
 
 synonym -h                   Show this help message and exit.
 ```
