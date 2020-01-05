@@ -10,11 +10,11 @@
 #          \__.'                             \__.'
 #
 #
-# Print out synonyms from the thesaurus API.
+# Print out synonyms from the Thesaurus API.
 #
 # Dependencies: jq
 #
-# You will also need a thesaurus API key provided
+# You will also need a Thesaurus API key provided
 # at https://thesaurus.altervista.org/mykey
 #
 
@@ -72,12 +72,13 @@ clean () {
 }
 
 # associate os default language if supported by thesaurus API
-# and no language in synonymrc or specify in args
+# and no language is set in synonymrc or specified in args
 default_os_language() {
     shopt -s extglob
-    # supported languages values by thesaurus
+    # supported languages values by Thesaurus API
     supported="@(cs_CZ|da_DK|de_CH|de_DE|en_US|el_GR|es_ES|fr_FR|hu_HU|
         it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)"
+    # remove extention from os language var (ie. fr_FR.UTF-8 > fr_FR)
     L=$(echo $1 | sed 's/\..*//')
     case $L in
         $supported ) SYN_LANG=$L ;;
@@ -88,22 +89,22 @@ default_os_language() {
 # associate synonymrc language option or the one specified in args
 language_index() {
     case $1 in
-        "en") SYN_LANG="en_US" ;;
-        "fr") SYN_LANG="fr_FR" ;;
-        "cs") SYN_LANG="cs_CZ" ;;
-        "es") SYN_LANG="es_ES" ;;
-        "el") SYN_LANG="el_GR" ;;
-        "da") SYN_LANG="da_DK" ;;
-        "de") SYN_LANG="de_DE" ;;
-        "hu") SYN_LANG="hu_HU" ;;
-        "it") SYN_LANG="it_IT" ;;
-        "no") SYN_LANG="no_NO" ;;
-        "pl") SYN_LANG="pl_PL" ;;
-        "pt") SYN_LANG="pt_PT" ;;
-        "ro") SYN_LANG="ro_RO" ;;
-        "ru") SYN_LANG="ru_RU" ;;
-        "sk") SYN_LANG="sk_SK" ;;
-        *   ) printf "Error: language not supported\n"; exit 1;;
+        "en" ) SYN_LANG="en_US" ;;
+        "fr" ) SYN_LANG="fr_FR" ;;
+        "cs" ) SYN_LANG="cs_CZ" ;;
+        "es" ) SYN_LANG="es_ES" ;;
+        "el" ) SYN_LANG="el_GR" ;;
+        "da" ) SYN_LANG="da_DK" ;;
+        "de" ) SYN_LANG="de_DE" ;;
+        "hu" ) SYN_LANG="hu_HU" ;;
+        "it" ) SYN_LANG="it_IT" ;;
+        "no" ) SYN_LANG="no_NO" ;;
+        "pl" ) SYN_LANG="pl_PL" ;;
+        "pt" ) SYN_LANG="pt_PT" ;;
+        "ro" ) SYN_LANG="ro_RO" ;;
+        "ru" ) SYN_LANG="ru_RU" ;;
+        "sk" ) SYN_LANG="sk_SK" ;;
+        *    ) printf "Error: language not supported\n"; exit 1;;
     esac
 }
 

@@ -82,9 +82,9 @@ key from thesaurus.
 KEY=myapikey    # Mandatory
 SEARCH_LANG=en
 ```
-Note: if no language is set in `synonymrc`, or specified in arg (`-l`), default language 
+Note: if no language is set in `synonymrc`, or specified in arg (`-l`), the default language 
 will be fetched from the os (`$LANGUAGE` or `$LANG`). If not supported by Thesaurus, or
-null, it will be default to `en_US`.  
+null, it will be set as default to `en_US`.  
 
 You are now all set-up to run synonym in your terminal.  
 
