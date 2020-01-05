@@ -26,7 +26,13 @@ en, fr, cs, el, da, de, hu, it, no, pl, pt, ro, ru, sk
 #### API key
 You will need to generate an API key to use this script, you can
 do so at https://thesaurus.altervista.org/mykey  
-(They are using Facebook auth, so you will need a Facebook account to get your key)  
+They are using Facebook auth, so you will need a Facebook account to
+get your key.  
+Click on the Connect button, Click on Continue as <NAME>, and they 
+will redirect you to your API key.  
+Note that you can remove Thesaurus from Facebook after this step, your 
+API key will still work.  
+You will need to store your API key in your `.synonymrc` file.  
 
 #### jq
 You will also need to install jq if you don't have it already https://stedolan.github.io/jq/download/  
