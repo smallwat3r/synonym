@@ -28,14 +28,15 @@ You will need to generate an API key to use this script, you can
 do so at https://thesaurus.altervista.org/mykey  
 They are using Facebook auth, so you will need a Facebook account to
 get your key.  
-Click on the Connect button, Click on Continue as <NAME>, and they 
+Click on the Connect button, Click on Continue as, and they 
 will redirect you to your API key.  
 Note that you can remove Thesaurus from Facebook after this step, your 
 API key will still work.  
 You will need to store your API key in your `.synonymrc` file.  
 
 #### jq
-You will also need to install jq if you don't have it already https://stedolan.github.io/jq/download/  
+You will also need to install jq if you don't have it already
+https://stedolan.github.io/jq/download/  
 ```sh
 brew install jq          # macos
 sudo apt-get install jq  # debian / ubuntu
@@ -63,8 +64,10 @@ sudo wget https://raw.githubusercontent.com/smallwat3r/synonym/master/synonym \
 ```
 
 #### .synonymrc
-You will need to create a `.synonymrc` config file (in either of these locations `$XDG_CONFIG_HOME/.synonymrc`, `~/.config/.synonymrc`, `~/.synonymrc`)  
-In this file, you can chose a default language and you will need to input your API key from thesaurus.
+You will need to create a `.synonymrc` config file (in either of these locations
+`$XDG_CONFIG_HOME/.synonymrc`, `~/.config/.synonymrc`, `~/.synonymrc`)  
+In this file, you can chose a default language and you will need to input your API 
+key from thesaurus.
 
 ```sh
 # .synonymrc example
