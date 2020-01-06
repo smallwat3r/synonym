@@ -82,6 +82,10 @@ process() {
 
 # clean data set
 clean () {
+    # use tr '"' "|" here instead of jq -r in process() to make sure all
+    # words can be parsed in a different column. Indeed the json output
+    # from Thesaurus can be split in multiple data sets. So we use the
+    # default " from jq to append a new line as well as the |.
     C=$(echo $1 | tr '"' "|" | tr "|" "\n" | sed 's/([^)]*)//g' | sort -u)
 }
 
@@ -153,7 +157,7 @@ WORD=$1
 
 # Check mandatory args
 if [ -z $WORD ]; then printf "Error: please specific a word\n"; usage; exit 1; fi
-if [ -z $KEY ]; then printf "Error: api key not found in synonymrc\n"; usage; exit 1; fi
+if [ -z $KEY ]; then printf "Error: api key not found in synonymrc\n"; exit 1; fi
 
 # Pick language
 if [ -z $SYN_LANG ]; then
@@ -172,9 +176,9 @@ fi
 URL="https://thesaurus.altervista.org/thesaurus/v1"
 call $URL $WORD $SYN_LANG $KEY
 
-E=$(echo $R | jq '(.error)')  # check for errors
+E=$(echo $R | jq -r '(.error)')  # check for errors
 if [ "$E" != "null" ]; then
-    printf "Error: $E\n" | tr -d '"'
+    printf "Error: $E\n"
     exit 1
 else
     # process data
