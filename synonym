@@ -176,7 +176,7 @@ fi
 URL="https://thesaurus.altervista.org/thesaurus/v1"
 call $URL $WORD $SYN_LANG $KEY
 
-E=$(echo $R | jq -r '(.error)')  # check for errors
+E=$(echo $R | jq -jr '(.error)')  # check for errors
 if [ "$E" != "null" ]; then
     printf "Error: $E\n"
     exit 1
