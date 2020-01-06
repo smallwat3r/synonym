@@ -94,14 +94,18 @@ You are now all set-up to run synonym in your terminal.
 ```
 USAGE
 -----------------------------------------------------------------
-
-synonym <word>               Finds all synonyms for this specific
+positional arguments:
+    WORD
+    synonym <word>           Finds all synonyms for this specific
                              word in the default language.
-
-synonym -l <lang> <word>     Finds all synonyms for this specific
+optionnal arguments:
+    -l LANG
+    synonym -l <lang> <word> Finds all synonyms for this specific
                              word in this specific language.
-                             (en, fr, cs, el, es, da, de, hu, it, 
+                             (en, fr, cs, el, es, da, de, hu, it,
                              no, pl, pt, ro, ru, sk)
-
-synonym -h                   Show this help message and exit.
+    -v
+    synonym -v               Show program version number and exit.
+    -h
+    synonym -h               Show this help message and exit.
 ```
