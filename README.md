@@ -88,20 +88,23 @@ You are now all set-up to run synonym in your terminal.
 ## Usage
 
 ```
-USAGE
------------------------------------------------------------------
-positional arguments:
-    WORD
-    synonym <word>           Finds all synonyms for this specific
-                             word in the default language.
-optionnal arguments:
-    -l LANG
-    synonym -l <lang> <word> Finds all synonyms for this specific
-                             word in this specific language.
-                             (en, fr, cs, el, es, da, de, hu, it,
-                             no, pl, pt, ro, ru, sk)
-    -v
-    synonym -v               Show program version number and exit.
-    -h
-    synonym -h               Show this help message and exit.
+Usage: synonym [OPTION] [WORD]
+Finds all synonyms for a specific word in the language selected
+or the default one.
+
+Options:
+  -l LANG      Finds all synonyms for this specific language.
+               Languages supported: en, fr, cs, el, es, da, de,
+               hu, it, no, pl, pt, ro, ru, sk
+  -v           Show program version number and exit.
+  -h           Show help message and exit.
+```
+
+Examples  
+```sh
+synonym happy
+synonym -l en happy
+synonym -l fr joyeux
+synonym -l it allegro 
+synonym -l de fröhlich 
 ```
