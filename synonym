@@ -35,7 +35,6 @@
 #
 # You will also need a Thesaurus API key provided at
 # https://thesaurus.altervista.org/mykey
-#
 
 set -e
 self=${0##*/}
