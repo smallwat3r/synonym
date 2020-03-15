@@ -19,7 +19,7 @@ List of languages supported:
 en, fr, cs, el, es, da, de, hu, it, no, pl, pt, ro, ru, sk
 ```
 
-![synonym](https://i.imgur.com/OVLuJEF.gif)  
+![synonym](https://i.imgur.com/Fi88TEI.gif)  
 
 ## Dependencies
 
