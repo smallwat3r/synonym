@@ -21,10 +21,9 @@ en, fr, cs, el, es, da, de, hu, it, no, pl, pt, ro, ru, sk
 
 ![synonym](https://i.imgur.com/Fi88TEI.gif)  
 
-## Dependencies
+## What do you need?
 
-
-#### API key
+#### Thesaurus API key
 You will need to generate an API key to use this script, you can
 do so at https://thesaurus.altervista.org/mykey  
 You can sign in with either Facebook, Google or Yahoo.  
@@ -39,7 +38,7 @@ brew install jq          # macos
 sudo apt-get install jq  # debian / ubuntu
 ```
 
-## Set up
+## How to install it?
 Clone this repository and run the following commands.  
 ```sh
 git clone https://github.com/smallwat3r/synonym.git
@@ -85,7 +84,7 @@ null, it will be set as default to `en_US`.
 
 You are now all set-up to run synonym in your terminal.  
 
-## Usage
+## How to use it?
 
 ```
 Usage: synonym [OPTION] [WORD]
