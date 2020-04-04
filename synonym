@@ -90,7 +90,7 @@ _compute() {
       jq -jr '(.error)'
   )
   # Check erros
-  if [ "$_reach_error" != "null" ]; then
+  if [[ $_reach_error != "null" ]]; then
     printf "Error: $_reach_error\n"
     exit 1
   fi
@@ -164,7 +164,7 @@ _load_config() {
     $HOME/.synonymrc
   )
   for d in "${conf_dir[@]}"; do
-    if [ -f $d ]; then
+    if [[ -f $d ]]; then
       source $d
       break
     fi
@@ -173,18 +173,18 @@ _load_config() {
 
 _check_dependencies() {
   # jq
-  if ! command -v jq &>/dev/null; then
-    printf "Error: You need to install jq to run this script\nhttps://stedolan.github.io/jq/download/\n"
+  command -v jq >/dev/null 2>&1 || {
+    printf >&2 "Error: You need to install jq to run synonym.\nhttps://stedolan.github.io/jq/download/\n"
     exit 1
-  fi
+  }
 }
 
 _mandatory_params() {
-  if [ -z $_searched_word ]; then
+  if [[ -z $_searched_word ]]; then
     printf "Error: missing word to search\n"
     exit 1
   fi
-  if [ -z $SYNONYM_THESAURUS_KEY ]; then
+  if [[ -z $SYNONYM_THESAURUS_KEY ]]; then
     printf "Error: api key not found in synonymrc\n"
     exit 1
   fi
@@ -192,12 +192,12 @@ _mandatory_params() {
 
 _get_language() {
   # if not explicitly set in args.
-  if [ -z $_synonym_language ]; then
+  if [[ -z $_synonym_language ]]; then
     # if default language not set in .synonymrc
-    if [ -z $SYNONYM_SEARCH_LANG ]; then
+    if [[ -z $SYNONYM_SEARCH_LANG ]]; then
       # check default language on system
       # defaults to en_US if not supported or not found
-      if ! [ -z $LANGUAGE ]; then
+      if [[ ! -z $LANGUAGE ]]; then
         _default_os_language $LANGUAGE
       else
         _default_os_language $LANG
