@@ -38,9 +38,9 @@
 
 set -e
 self=${0##*/}
-version="v1.1 (Matthieu Petiteau)"
+version="v1.2 (Matthieu Petiteau)"
 
-showinfo() {
+_showinfo() {
   printf "
   .--.    _   __  _ .--.   .--.   _ .--.    _   __  _ .--..--.
  ( (\`\]  [ \ [  ][ \`.-. |/ .'\`\ \[ \`.-. |  [ \ [  ][ \`.-. .-. |
@@ -65,11 +65,11 @@ Created by Matthieu Petiteau <mpetiteau.pro@gmail.com>
 \n"
 }
 
-version() {
+_version() {
   printf "$self $version\n"
 }
 
-usage() {
+_usage() {
   printf "
 Usage: $self [OPTION] [WORD]
 Finds all synonyms for a specific word in the language selected
@@ -84,58 +84,72 @@ Options:
 \n"
 }
 
-# request API
-call() {
-  R=$(curl -s "$1?word=$2&language=$3&key=$4&output=json")
-}
+_compute() {
+  local _reach_error=$(
+    echo $1 |
+      jq -jr '(.error)'
+  )
+  # Check erros
+  if [ "$_reach_error" != "null" ]; then
+    printf "Error: $_reach_error\n"
+    exit 1
+  fi
 
-# process json response with jq
-process() {
-  P=$(echo $1 | jq '(.response | .[] .list .synonyms)')
-}
-
-# clean data set
-clean() {
+  # process json response with jq
+  local _process_result=$(
+    echo $1 |
+      jq '(.response | .[] .list .synonyms)'
+  )
   # use tr '"' "|" here instead of jq -r in process() to make sure all
   # words can be parsed in a different column. Indeed the json output
   # from Thesaurus can be split in multiple data sets. So we use the
   # default " from jq to append a new line as well as the |.
-  C=$(echo $1 | tr '"' "|" | tr "|" "\n" | sed 's/([^)]*)//g' | sort -u)
+  local _clean_data=$(
+    echo $_process_result |
+      tr '"' "|" |
+      tr "|" "\n" |
+      sed 's/([^)]*)//g' |
+      sort -u
+  )
+  printf "$_clean_data\n" |
+    column -c $(tput cols)
 }
 
-# associate os default language if supported by thesaurus API
-# and no language is set in synonymrc or specified in args
-default_os_language() {
+_default_os_language() {
+  # associate os default language if supported by thesaurus API
+  # and no language is set in synonymrc or specified in args
   shopt -s extglob
   # supported languages values by Thesaurus API
-  supported="@(cs_CZ|da_DK|de_CH|de_DE|en_US|el_GR|es_ES|fr_FR|hu_HU|
-        it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)"
+  local _supported="@(cs_CZ|da_DK|de_CH|de_DE|en_US|el_GR|es_ES|
+    fr_FR|hu_HU|it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)"
   # remove extention from os language var (ie. fr_FR.UTF-8 > fr_FR)
-  L=$(echo $1 | sed 's/\..*//')
-  case $L in
-    $supported) SYN_LANG=$L ;;
-    *) SYN_LANG="en_US" ;; # default to en_US if not supported
+  local _lang=$(
+    echo $1 |
+      sed 's/\..*//'
+  )
+  case $_lang in
+    $_supported) _synonym_language=$_lang ;;
+    *) _synonym_language="en_US" ;; # default if not supported
   esac
 }
 
-# associate synonymrc language option or the one specified in args
-language_index() {
+_language_index() {
   case $1 in
-    "en") SYN_LANG="en_US" ;;
-    "fr") SYN_LANG="fr_FR" ;;
-    "cs") SYN_LANG="cs_CZ" ;;
-    "es") SYN_LANG="es_ES" ;;
-    "el") SYN_LANG="el_GR" ;;
-    "da") SYN_LANG="da_DK" ;;
-    "de") SYN_LANG="de_DE" ;;
-    "hu") SYN_LANG="hu_HU" ;;
-    "it") SYN_LANG="it_IT" ;;
-    "no") SYN_LANG="no_NO" ;;
-    "pl") SYN_LANG="pl_PL" ;;
-    "pt") SYN_LANG="pt_PT" ;;
-    "ro") SYN_LANG="ro_RO" ;;
-    "ru") SYN_LANG="ru_RU" ;;
-    "sk") SYN_LANG="sk_SK" ;;
+    "en") _synonym_language="en_US" ;;
+    "fr") _synonym_language="fr_FR" ;;
+    "cs") _synonym_language="cs_CZ" ;;
+    "es") _synonym_language="es_ES" ;;
+    "el") _synonym_language="el_GR" ;;
+    "da") _synonym_language="da_DK" ;;
+    "de") _synonym_language="de_DE" ;;
+    "hu") _synonym_language="hu_HU" ;;
+    "it") _synonym_language="it_IT" ;;
+    "no") _synonym_language="no_NO" ;;
+    "pl") _synonym_language="pl_PL" ;;
+    "pt") _synonym_language="pt_PT" ;;
+    "ro") _synonym_language="ro_RO" ;;
+    "ru") _synonym_language="ru_RU" ;;
+    "sk") _synonym_language="sk_SK" ;;
     *)
       printf "Error: language not supported\n"
       exit 1
@@ -143,35 +157,73 @@ language_index() {
   esac
 }
 
-# check if jq is installed
-if ! command -v jq &>/dev/null; then
-  printf "Error: You need to install jq to run this script
-https://stedolan.github.io/jq/download/\n"
-  exit 1
-fi
+_load_config() {
+  local conf_dir=(
+    $XDG_CONFIG_HOME/.synonymrc
+    $HOME/.config/.synonymrc
+    $HOME/.synonymrc
+  )
+  for d in "${conf_dir[@]}"; do
+    if [ -f $d ]; then
+      source $d
+      break
+    fi
+  done
+}
 
-# Load synonymrc from the possible locations
-conf_dir=($XDG_CONFIG_HOME/.synonymrc $HOME/.config/.synonymrc $HOME/.synonymrc)
-for d in "${conf_dir[@]}"; do
-  if [ -f $d ]; then
-    . $d
-    break
+_check_dependencies() {
+  # jq
+  if ! command -v jq &>/dev/null; then
+    printf "Error: You need to install jq to run this script\nhttps://stedolan.github.io/jq/download/\n"
+    exit 1
   fi
-done
+}
+
+_mandatory_params() {
+  if [ -z $_searched_word ]; then
+    printf "Error: missing word to search\n"
+    exit 1
+  fi
+  if [ -z $SYNONYM_THESAURUS_KEY ]; then
+    printf "Error: api key not found in synonymrc\n"
+    exit 1
+  fi
+}
+
+_get_language() {
+  # if not explicitly set in args.
+  if [ -z $_synonym_language ]; then
+    # if default language not set in .synonymrc
+    if [ -z $SYNONYM_SEARCH_LANG ]; then
+      # check default language on system
+      # defaults to en_US if not supported or not found
+      if ! [ -z $LANGUAGE ]; then
+        _default_os_language $LANGUAGE
+      else
+        _default_os_language $LANG
+      fi
+    else
+      # loaded from synonymrc
+      _language_index $SYNONYM_SEARCH_LANG
+    fi
+  fi
+}
 
 # Args
 options=":l:hv"
 while getopts "$options" option; do
   case "${option}" in
-    l) language_index ${OPTARG} ;;
+    l)
+      _language_index ${OPTARG}
+      ;;
     h)
-      showinfo
-      version
-      usage
+      _showinfo
+      _version
+      _usage
       exit 0
       ;;
     v)
-      version
+      _version
       exit 0
       ;;
     \?)
@@ -182,44 +234,17 @@ while getopts "$options" option; do
 done
 
 shift $((OPTIND - 1))
-WORD=$1
+_searched_word=$1
 
-# Check mandatory args
-if [ -z $WORD ]; then
-  printf "Error: please specific a word\n"
-  exit 1
-fi
-if [ -z $KEY ]; then
-  printf "Error: api key not found in synonymrc\n"
-  exit 1
-fi
+_check_dependencies
+_load_config
 
-# Pick language
-if [ -z $SYN_LANG ]; then
-  # language not set in args
-  if [ -z $SEARCH_LANG ]; then
-    # default language not set in synonymrc
-    # load default language from os (default to en_US if not found)
-    if ! [ -z $LANGUAGE ]; then
-      default_os_language $LANGUAGE
-    else default_os_language $LANG; fi
-  else
-    # loaded from synonymrc
-    language_index $SEARCH_LANG
-  fi
-fi
+_mandatory_params
+_get_language
 
-URL="https://thesaurus.altervista.org/thesaurus/v1"
-call $URL $WORD $SYN_LANG $KEY
-
-E=$(echo $R | jq -jr '(.error)') # check for errors
-if [ "$E" != "null" ]; then
-  printf "Error: $E\n"
-  exit 1
-else
-  # process data
-  process "$R"
-  clean "$P"
-  printf "$C\n" | column -c $(tput cols)
-  exit 0
-fi
+_api_url="https://thesaurus.altervista.org/thesaurus/v1"
+_response=$(
+  curl -s "$_api_url?word=$_searched_word&language=$_synonym_language&key=$SYNONYM_THESAURUS_KEY&output=json"
+)
+_compute "$_response"
+exit 0

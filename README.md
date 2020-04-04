@@ -41,16 +41,16 @@ sudo apt-get install jq  # debian / ubuntu
 ## How to install it?
 Clone this repository and run the following commands.  
 ```sh
-git clone https://github.com/smallwat3r/synonym.git
-cd synonym
-make install
+git clone https://github.com/smallwat3r/synonym.git \
+  && cd synonym \
+  && make install
 ```
 
 or  
 ```sh
-git clone https://github.com/smallwat3r/synonym.git
-cd synonym
-cp synonym /usr/local/bin/synonym && chmod 755 /usr/local/bin/synonym
+git clone https://github.com/smallwat3r/synonym.git \
+  && cd synonym \ 
+  && cp synonym /usr/local/bin/synonym && chmod 755 /usr/local/bin/synonym
 ```
 
 or (without cloning)  
@@ -60,9 +60,9 @@ sudo wget https://raw.githubusercontent.com/smallwat3r/synonym/master/synonym \
 ```
 
 #### .synonymrc
-You will need to create a `.synonymrc` config file in one of the loc below.  
+You will need to create a .synonymrc config file in one of the loc below.  
 ```sh
-# Possible config file locations (sorted by priority)
+# Possible config file locations (in order of priority)
 
 $XDG_CONFIG_HOME/.synonymrc
 ~/.config/.synonymrc
@@ -75,10 +75,16 @@ key from thesaurus.
 ```sh
 # .synonymrc example
 
-KEY=myapikey    # Mandatory
-SEARCH_LANG=en
+# API KEY https://thesaurus.altervista.org/mykey
+SYNONYM_THESAURUS_KEY=<API KEY>
+
+# Default language
+# List of languages available:
+#   en, fr, cs, el, es, da, de, hu,
+#   it, no, pl, pt, ro, ru, sk
+SYNONYM_SEARCH_LANG=en
 ```
-Note: if no language is set in `synonymrc`, or specified in arg (`-l`), the default language 
+Note: if no language is set in .synonymrc, or specified in paramas, the default language 
 will be fetched from the os (`$LANGUAGE` or `$LANG`). If not supported by Thesaurus, or
 null, it will be set as default to `en_US`.  
 
