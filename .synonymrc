@@ -1,6 +1,10 @@
-# Config file for synonym
-KEY=<API KEY>             # API KEY https://thesaurus.altervista.org/mykey
-SEARCH_LANG=en            # Default language
-                          # List of languages available:
-                          # en, fr, cs, el, es, da, de, hu,
-                          # it, no, pl, pt, ro, ru, sk
+# .synonymrc example
+
+# API KEY https://thesaurus.altervista.org/mykey
+SYNONYM_THESAURUS_KEY=<API KEY>
+
+# Default language
+# List of languages available:
+#   en, fr, cs, el, es, da, de, hu,
+#   it, no, pl, pt, ro, ru, sk
+SYNONYM_SEARCH_LANG=en
