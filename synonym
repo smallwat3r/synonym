@@ -179,8 +179,7 @@ _get_language() {
   if [[ -z $_synonym_language ]]; then
     # if default language not set in .synonymrc
     [[ -z $SYNONYM_SEARCH_LANG ]] && {
-      # check default language on system
-      # defaults to en_US if not supported or not found
+      # check default language on system, defaults to en_US if not supported or not found
       [[ ! -z $LANGUAGE ]] && _default_os_language $LANGUAGE || _default_os_language $LANG
     } || _language_index $SYNONYM_SEARCH_LANG
   fi
