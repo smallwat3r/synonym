@@ -91,7 +91,7 @@ _compute() {
   )
   # Check erros
   if [[ $_reach_error != "null" ]]; then
-    printf "Error: $_reach_error\n"
+    printf "Error: $_reach_error\n" >&2
     exit 1
   fi
 
@@ -151,7 +151,7 @@ _language_index() {
     "ru") _synonym_language="ru_RU" ;;
     "sk") _synonym_language="sk_SK" ;;
     *)
-      printf "Error: language not supported\n"
+      printf "Error: language not supported\n" >&2
       exit 1
       ;;
   esac
@@ -174,18 +174,18 @@ _load_config() {
 _check_dependencies() {
   # jq
   command -v jq >/dev/null 2>&1 || {
-    printf >&2 "Error: You need to install jq to run synonym.\nhttps://stedolan.github.io/jq/download/\n"
+    printf "Error: You need to install jq to run synonym.\nhttps://stedolan.github.io/jq/download/\n" >&2
     exit 1
   }
 }
 
 _mandatory_params() {
   if [[ -z $_searched_word ]]; then
-    printf "Error: missing word to search\n"
+    printf "Error: missing word to search\n" >&2
     exit 1
   fi
   if [[ -z $SYNONYM_THESAURUS_KEY ]]; then
-    printf "Error: api key not found in synonymrc\n"
+    printf "Error: api key not found in synonymrc\n" >&2
     exit 1
   fi
 }
