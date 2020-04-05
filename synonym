@@ -83,10 +83,10 @@ _compute() {
       jq -jr '(.error)'
   )
   # Check erros
-  if [[ $_reach_error != "null" ]]; then
+  [[ $_reach_error != "null" ]] && {
     printf "Error: $_reach_error\n" >&2
     exit 1
-  fi
+  }
 
   # process json response with jq
   local _process_result=$(
@@ -144,7 +144,7 @@ _language_index() {
     ru) _synonym_language='ru_RU' ;;
     sk) _synonym_language='sk_SK' ;;
     *)
-      printf 'Error: language not supported\n' >&2
+      printf "Error: language $1 not supported\n" >&2
       exit 1
       ;;
   esac
@@ -157,10 +157,10 @@ _load_config() {
     $HOME/.synonymrc
   )
   for d in "${conf_dir[@]}"; do
-    if [[ -f $d ]]; then
+    [[ -f $d ]] && {
       source $d
       break
-    fi
+    }
   done
 }
 
@@ -174,33 +174,15 @@ _check_dependencies() {
   }
 }
 
-_mandatory_params() {
-  if [[ -z $_searched_word ]]; then
-    printf 'Error: missing word to search\n' >&2
-    exit 1
-  fi
-  if [[ -z $SYNONYM_THESAURUS_KEY ]]; then
-    printf 'Error: api key not found in synonymrc\n' >&2
-    exit 1
-  fi
-}
-
 _get_language() {
   # if not explicitly set in args.
   if [[ -z $_synonym_language ]]; then
     # if default language not set in .synonymrc
-    if [[ -z $SYNONYM_SEARCH_LANG ]]; then
+    [[ -z $SYNONYM_SEARCH_LANG ]] && {
       # check default language on system
       # defaults to en_US if not supported or not found
-      if [[ ! -z $LANGUAGE ]]; then
-        _default_os_language $LANGUAGE
-      else
-        _default_os_language $LANG
-      fi
-    else
-      # loaded from synonymrc
-      _language_index $SYNONYM_SEARCH_LANG
-    fi
+      [[ ! -z $LANGUAGE ]] && _default_os_language $LANGUAGE || _default_os_language $LANG
+    } || _language_index $SYNONYM_SEARCH_LANG
   fi
 }
 
@@ -232,9 +214,16 @@ _searched_word=$1
 _check_dependencies
 _load_config
 
-_mandatory_params
-_get_language
+[[ -z $_searched_word ]] && {
+  printf 'Error: missing word to search\n' >&2
+  exit 1
+}
+[[ -z $SYNONYM_THESAURUS_KEY ]] && {
+  printf 'Error: api key not found in synonymrc\n' >&2
+  exit 1
+}
 
+_get_language
 _api_url='https://thesaurus.altervista.org/thesaurus/v1'
 _response=$(
   curl -s "$_api_url?word=$_searched_word&language=$_synonym_language&key=$SYNONYM_THESAURUS_KEY&output=json"
