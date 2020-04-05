@@ -38,15 +38,15 @@
 
 set -e
 self=${0##*/}
-version="v1.2 (Matthieu Petiteau)"
+version="$self v1.2 (Matthieu Petiteau)"
 
-_showinfo() {
-  printf "
-  .--.    _   __  _ .--.   .--.   _ .--.    _   __  _ .--..--.
- ( (\`\]  [ \ [  ][ \`.-. |/ .'\`\ \[ \`.-. |  [ \ [  ][ \`.-. .-. |
-  \`'.'.   \ '/ /  | | | || \__. | | | | |   \ '/ /  | | | | | |
- [\__) )[\_:  /  [___||__]'.__.' [___||__][\_:  /  [___||__||__]
-         \__.'                             \__.'
+_usage() {
+  cat <<EOF
+.--.    _   __  _ .--.   .--.   _ .--.    _   __  _ .--..--.
+( (\`\]  [ \ [  ][ \`.-. |/ .'\`\ \[ \`.-. |  [ \ [  ][ \`.-. .-. |
+\`'.'.   \ '/ /  | | | || \__. | | | | |   \ '/ /  | | | | | |
+[\__) )[\_:  /  [___||__]'.__.' [___||__][\_:  /  [___||__||__]
+       \__.'                             \__.'
 
 $self is a small utility tool to rapidly find synonyms directly
 from your terminal.
@@ -61,16 +61,9 @@ do so at https://thesaurus.altervista.org/mykey
 You will also need to install jq if you don't have it already
 https://stedolan.github.io/jq/download/
 
-Created by Matthieu Petiteau <mpetiteau.pro@gmail.com>
-\n"
-}
+Copyright 2020 Matthieu Petiteau, all rights reserved.
+$version
 
-_version() {
-  printf "$self $version\n"
-}
-
-_usage() {
-  printf "
 Usage: $self [OPTION] [WORD]
 Finds all synonyms for a specific word in the language selected
 or the default one.
@@ -81,7 +74,7 @@ Options:
                hu, it, no, pl, pt, ro, ru, sk
   -v           Show program version number and exit.
   -h           Show help message and exit.
-\n"
+EOF
 }
 
 _compute() {
@@ -106,8 +99,8 @@ _compute() {
   # default " from jq to append a new line as well as the |.
   local _clean_data=$(
     echo $_process_result |
-      tr '"' "|" |
-      tr "|" "\n" |
+      tr '"' '|' |
+      tr '|' '\n' |
       sed 's/([^)]*)//g' |
       sort -u
   )
@@ -129,29 +122,29 @@ _default_os_language() {
   )
   case $_lang in
     $_supported) _synonym_language=$_lang ;;
-    *) _synonym_language="en_US" ;; # default if not supported
+    *) _synonym_language='en_US' ;; # default if not supported
   esac
 }
 
 _language_index() {
   case $1 in
-    "en") _synonym_language="en_US" ;;
-    "fr") _synonym_language="fr_FR" ;;
-    "cs") _synonym_language="cs_CZ" ;;
-    "es") _synonym_language="es_ES" ;;
-    "el") _synonym_language="el_GR" ;;
-    "da") _synonym_language="da_DK" ;;
-    "de") _synonym_language="de_DE" ;;
-    "hu") _synonym_language="hu_HU" ;;
-    "it") _synonym_language="it_IT" ;;
-    "no") _synonym_language="no_NO" ;;
-    "pl") _synonym_language="pl_PL" ;;
-    "pt") _synonym_language="pt_PT" ;;
-    "ro") _synonym_language="ro_RO" ;;
-    "ru") _synonym_language="ru_RU" ;;
-    "sk") _synonym_language="sk_SK" ;;
+    en) _synonym_language='en_US' ;;
+    fr) _synonym_language='fr_FR' ;;
+    cs) _synonym_language='cs_CZ' ;;
+    es) _synonym_language='es_ES' ;;
+    el) _synonym_language='el_GR' ;;
+    da) _synonym_language='da_DK' ;;
+    de) _synonym_language='de_DE' ;;
+    hu) _synonym_language='hu_HU' ;;
+    it) _synonym_language='it_IT' ;;
+    no) _synonym_language='no_NO' ;;
+    pl) _synonym_language='pl_PL' ;;
+    pt) _synonym_language='pt_PT' ;;
+    ro) _synonym_language='ro_RO' ;;
+    ru) _synonym_language='ru_RU' ;;
+    sk) _synonym_language='sk_SK' ;;
     *)
-      printf "Error: language not supported\n" >&2
+      printf 'Error: language not supported\n' >&2
       exit 1
       ;;
   esac
@@ -174,18 +167,20 @@ _load_config() {
 _check_dependencies() {
   # jq
   command -v jq >/dev/null 2>&1 || {
-    printf "Error: You need to install jq to run synonym.\nhttps://stedolan.github.io/jq/download/\n" >&2
+    printf '%s\n%s\n' \
+      'Error: You need to install jq to run synonym.' \
+      'https://stedolan.github.io/jq/download/' >&2
     exit 1
   }
 }
 
 _mandatory_params() {
   if [[ -z $_searched_word ]]; then
-    printf "Error: missing word to search\n" >&2
+    printf 'Error: missing word to search\n' >&2
     exit 1
   fi
   if [[ -z $SYNONYM_THESAURUS_KEY ]]; then
-    printf "Error: api key not found in synonymrc\n" >&2
+    printf 'Error: api key not found in synonymrc\n' >&2
     exit 1
   fi
 }
@@ -217,13 +212,11 @@ while getopts "$options" option; do
       _language_index ${OPTARG}
       ;;
     h)
-      _showinfo
-      _version
       _usage
       exit 0
       ;;
     v)
-      _version
+      printf "$version\n"
       exit 0
       ;;
     \?)
@@ -242,7 +235,7 @@ _load_config
 _mandatory_params
 _get_language
 
-_api_url="https://thesaurus.altervista.org/thesaurus/v1"
+_api_url='https://thesaurus.altervista.org/thesaurus/v1'
 _response=$(
   curl -s "$_api_url?word=$_searched_word&language=$_synonym_language&key=$SYNONYM_THESAURUS_KEY&output=json"
 )
