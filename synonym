@@ -38,7 +38,7 @@
 
 set -e
 self=${0##*/}
-version="$self v1.2 (Matthieu Petiteau)"
+version="$self v1.3 (Matthieu Petiteau)"
 
 _usage() {
   cat <<EOF
