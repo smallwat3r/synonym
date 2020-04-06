@@ -82,6 +82,7 @@ _compute() {
     echo $1 |
       jq -jr '(.error)'
   )
+
   # Check erros
   [[ $_reach_error != "null" ]] && {
     printf "Error: $_reach_error\n" >&2
@@ -93,6 +94,7 @@ _compute() {
     echo $1 |
       jq '(.response | .[] .list .synonyms)'
   )
+
   # use tr '"' "|" here instead of jq -r in process() to make sure all
   # words can be parsed in a different column. Indeed the json output
   # from Thesaurus can be split in multiple data sets. So we use the
@@ -104,6 +106,7 @@ _compute() {
       sed 's/([^)]*)//g' |
       sort -u
   )
+
   printf "$_clean_data\n" |
     column -c $(tput cols)
 }
@@ -112,14 +115,17 @@ _default_os_language() {
   # associate os default language if supported by thesaurus API
   # and no language is set in synonymrc or specified in args
   shopt -s extglob
+
   # supported languages values by Thesaurus API
   local _supported="@(cs_CZ|da_DK|de_CH|de_DE|en_US|el_GR|es_ES|
     fr_FR|hu_HU|it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)"
+
   # remove extention from os language var (ie. fr_FR.UTF-8 > fr_FR)
   local _lang=$(
     echo $1 |
       sed 's/\..*//'
   )
+
   case $_lang in
     $_supported) echo "$_lang" ;;
     *) echo 'en_US' ;; # default if not supported
@@ -152,10 +158,12 @@ _language_index() {
 
 _get_language() {
   # if default language not set in .synonymrc
-  [[ -z $SYNONYM_SEARCH_LANG ]] && {
+  if [[ -z $SYNONYM_SEARCH_LANG ]]; then
     # check default language on system, defaults to en_US if not supported or not found
     [[ ! -z $LANGUAGE ]] && _default_os_language $LANGUAGE || _default_os_language $LANG
-  } || _default_os_language $SYNONYM_SEARCH_LANG
+  else
+    _default_os_language $SYNONYM_SEARCH_LANG
+  fi
 }
 
 _init() {
@@ -164,9 +172,11 @@ _init() {
     $HOME/.config/.synonymrc
     $HOME/.synonymrc
   )
-  for d in "${conf_dir[@]}"; do
-    [[ -f $d ]] && {
-      source $d
+
+  local _d
+  for _d in "${conf_dir[@]}"; do
+    [[ -f $_d ]] && {
+      source $_d
       break
     }
   done
