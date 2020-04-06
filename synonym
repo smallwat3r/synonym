@@ -121,28 +121,28 @@ _default_os_language() {
       sed 's/\..*//'
   )
   case $_lang in
-    $_supported) _synonym_language=$_lang ;;
-    *) _synonym_language='en_US' ;; # default if not supported
+    $_supported) echo "$_lang" ;;
+    *) echo 'en_US' ;; # default if not supported
   esac
 }
 
 _language_index() {
   case $1 in
-    en) _synonym_language='en_US' ;;
-    fr) _synonym_language='fr_FR' ;;
-    cs) _synonym_language='cs_CZ' ;;
-    es) _synonym_language='es_ES' ;;
-    el) _synonym_language='el_GR' ;;
-    da) _synonym_language='da_DK' ;;
-    de) _synonym_language='de_DE' ;;
-    hu) _synonym_language='hu_HU' ;;
-    it) _synonym_language='it_IT' ;;
-    no) _synonym_language='no_NO' ;;
-    pl) _synonym_language='pl_PL' ;;
-    pt) _synonym_language='pt_PT' ;;
-    ro) _synonym_language='ro_RO' ;;
-    ru) _synonym_language='ru_RU' ;;
-    sk) _synonym_language='sk_SK' ;;
+    en) echo 'en_US' ;;
+    fr) echo 'fr_FR' ;;
+    cs) echo 'cs_CZ' ;;
+    es) echo 'es_ES' ;;
+    el) echo 'el_GR' ;;
+    da) echo 'da_DK' ;;
+    de) echo 'de_DE' ;;
+    hu) echo 'hu_HU' ;;
+    it) echo 'it_IT' ;;
+    no) echo 'no_NO' ;;
+    pl) echo 'pl_PL' ;;
+    pt) echo 'pt_PT' ;;
+    ro) echo 'ro_RO' ;;
+    ru) echo 'ru_RU' ;;
+    sk) echo 'sk_SK' ;;
     *)
       printf "Error: language $1 not supported\n" >&2
       exit 1
@@ -150,7 +150,15 @@ _language_index() {
   esac
 }
 
-_load_config() {
+_get_language() {
+  # if default language not set in .synonymrc
+  [[ -z $SYNONYM_SEARCH_LANG ]] && {
+    # check default language on system, defaults to en_US if not supported or not found
+    [[ ! -z $LANGUAGE ]] && _default_os_language $LANGUAGE || _default_os_language $LANG
+  } || _default_os_language $SYNONYM_SEARCH_LANG
+}
+
+_init() {
   local conf_dir=(
     $XDG_CONFIG_HOME/.synonymrc
     $HOME/.config/.synonymrc
@@ -164,33 +172,20 @@ _load_config() {
   done
 }
 
-_check_dependencies() {
-  # jq
-  command -v jq >/dev/null 2>&1 || {
-    printf '%s\n%s\n' \
-      "Error: You need to install jq to run $self." \
-      'https://stedolan.github.io/jq/download/' >&2
-    exit 1
-  }
+# Dependencies
+command -v jq >/dev/null 2>&1 || {
+  printf '%s\n%s\n' \
+    "Error: You need to install jq to run $self." \
+    'https://stedolan.github.io/jq/download/' >&2
+  exit 1
 }
 
-_get_language() {
-  # if not explicitly set in args.
-  if [[ -z $_synonym_language ]]; then
-    # if default language not set in .synonymrc
-    [[ -z $SYNONYM_SEARCH_LANG ]] && {
-      # check default language on system, defaults to en_US if not supported or not found
-      [[ ! -z $LANGUAGE ]] && _default_os_language $LANGUAGE || _default_os_language $LANG
-    } || _language_index $SYNONYM_SEARCH_LANG
-  fi
-}
-
-# Args
+# Params
 options=":l:hv"
 while getopts "$options" option; do
   case "${option}" in
     l)
-      _language_index ${OPTARG}
+      _synonym_language="$(_language_index ${OPTARG})"
       ;;
     h)
       _usage
@@ -209,9 +204,7 @@ done
 
 shift $((OPTIND - 1))
 _searched_word=$1
-
-_check_dependencies
-_load_config
+_init
 
 [[ -z $_searched_word ]] && {
   printf 'Error: missing word to search\n' >&2
@@ -221,11 +214,10 @@ _load_config
   printf 'Error: api key not found in synonymrc\n' >&2
   exit 1
 }
+[[ -z $_synonym_language ]] && _synonym_language="$(_get_language)"
 
-_get_language
-_api_url='https://thesaurus.altervista.org/thesaurus/v1'
-_response=$(
-  curl -s "$_api_url?word=$_searched_word&language=$_synonym_language&key=$SYNONYM_THESAURUS_KEY&output=json"
-)
-_compute "$_response"
+_url="https://thesaurus.altervista.org/thesaurus/v1\
+?word=$_searched_word&language=$_synonym_language&key=$SYNONYM_THESAURUS_KEY&output=json"
+
+_compute "$(curl -s $_url)"
 exit 0
