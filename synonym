@@ -168,7 +168,7 @@ _check_dependencies() {
   # jq
   command -v jq >/dev/null 2>&1 || {
     printf '%s\n%s\n' \
-      'Error: You need to install jq to run synonym.' \
+      "Error: You need to install jq to run $self." \
       'https://stedolan.github.io/jq/download/' >&2
     exit 1
   }
