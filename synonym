@@ -167,14 +167,14 @@ _get_language() {
 }
 
 _init() {
-  local conf_dir=(
+  local _conf_dir=(
     $XDG_CONFIG_HOME/.synonymrc
     $HOME/.config/.synonymrc
     $HOME/.synonymrc
   )
 
   local _d
-  for _d in "${conf_dir[@]}"; do
+  for _d in "${_conf_dir[@]}"; do
     [[ -f $_d ]] && {
       source $_d
       break
