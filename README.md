@@ -93,10 +93,9 @@ You are now all set-up to run synonym in your terminal.
 ## How to use it?
 
 ```console
-$ synonym -h
-Usage: synonym [OPTION] [WORD]
-Finds all synonyms for a specific word in the language selected
-or the default one.
+$ synonym -u
+Usage: synonym [OPTION] WORD
+Finds all synonyms for a specific word in a specified language.
 
 Options:
   -l LANG      Finds all synonyms for this specific language.
