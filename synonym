@@ -40,40 +40,73 @@ set -e
 self=${0##*/}
 version="$self v1.3 (Matthieu Petiteau)"
 
-_usage() {
+_info() {
   cat <<EOF
-.--.    _   __  _ .--.   .--.   _ .--.    _   __  _ .--..--.
+ .--.    _   __  _ .--.   .--.   _ .--.    _   __  _ .--..--.
 ( (\`\]  [ \ [  ][ \`.-. |/ .'\`\ \[ \`.-. |  [ \ [  ][ \`.-. .-. |
-\`'.'.   \ '/ /  | | | || \__. | | | | |   \ '/ /  | | | | | |
+ \`'.'.   \ '/ /  | | | || \__. | | | | |   \ '/ /  | | | | | |
 [\__) )[\_:  /  [___||__]'.__.' [___||__][\_:  /  [___||__||__]
        \__.'                             \__.'
 
-$self is a small utility tool to rapidly find synonyms directly
-from your terminal.
+$self is a small utility tool to find synonyms in different language
+directly from the terminal.
 
 The script is fetching https://www.thesaurus.com/ rest API.
 List of languages available: en, fr, cs, el, es, da, de, hu, it,
 no, pl, pt, ro, ru, sk
 
-You will need to generate an API key to use this script, you can
-do so at https://thesaurus.altervista.org/mykey
+Dependencies to run $self:
 
-You will also need to install jq if you don't have it already
-https://stedolan.github.io/jq/download/
+  - Thesaurus API key from https://thesaurus.altervista.org/mykey
+  - jq https://stedolan.github.io/jq/download/
+
+You will also need to create a .synonymrc config file in one of
+the location below.
+
+  \$XDG_CONFIG_HOME/.synonymrc
+  ~/.config/.synonymrc
+  ~/.synonymrc
+
+In this file, you can chose a default language and you will need
+to input your API key from Thesaurus.
+
+.synonymrc example:
+
+  # API KEY https://thesaurus.altervista.org/mykey
+  SYNONYM_THESAURUS_KEY=<API KEY>
+
+  # Default language
+  # List of languages available:
+  #   en, fr, cs, el, es, da, de, hu,
+  #   it, no, pl, pt, ro, ru, sk
+  SYNONYM_SEARCH_LANG=en
+
+Note:
+
+  If no language is set in .synonymrc, or specified in parameters,
+  the default language will be fetched from the os (\$LANGUAGE or
+  \$LANG). If not supported by Thesaurus, or null, it will be set
+  as default to en_US.
 
 Copyright 2020 Matthieu Petiteau, all rights reserved.
 $version
 
-Usage: $self [OPTION] [WORD]
-Finds all synonyms for a specific word in the language selected
-or the default one.
+EOF
+}
+
+_usage() {
+  cat <<EOF
+Usage: $self [OPTION] WORD
+Finds all synonyms for a specific word in a specified language.
 
 Options:
   -l LANG      Finds all synonyms for this specific language.
                Languages supported: en, fr, cs, el, es, da, de,
                hu, it, no, pl, pt, ro, ru, sk
-  -v           Show program version number and exit.
   -h           Show help message and exit.
+  -u           Show usage and exit.
+  -v           Show program version number and exit.
+
 EOF
 }
 
@@ -150,7 +183,9 @@ _language_index() {
     ru) echo 'ru_RU' ;;
     sk) echo 'sk_SK' ;;
     *)
-      printf "Error: language $1 not supported\n" >&2
+      printf '%s\n%s\n' \
+        "Error: Language $1 not supported." \
+        "Run $self -u for usage and see the list of supported languages." >&2
       exit 1
       ;;
   esac
@@ -167,19 +202,23 @@ _get_language() {
 }
 
 _init() {
-  local conf_dir=(
+  local _conf_dir=(
     $XDG_CONFIG_HOME/.synonymrc
     $HOME/.config/.synonymrc
     $HOME/.synonymrc
   )
-
   local _d
-  for _d in "${conf_dir[@]}"; do
+  for _d in "${_conf_dir[@]}"; do
     [[ -f $_d ]] && {
       source $_d
-      break
+      return
     }
   done
+
+  printf '%s\n%s\n' \
+    'Error: synonymrc file not found' \
+    "Run $self -h for help." >&2
+  exit 1
 }
 
 # Dependencies
@@ -191,13 +230,18 @@ command -v jq >/dev/null 2>&1 || {
 }
 
 # Params
-options=":l:hv"
+options=":l:huv"
 while getopts "$options" option; do
   case "${option}" in
     l)
       _synonym_language="$(_language_index ${OPTARG})"
       ;;
     h)
+      _info
+      _usage
+      exit 0
+      ;;
+    u)
       _usage
       exit 0
       ;;
@@ -207,6 +251,7 @@ while getopts "$options" option; do
       ;;
     \?)
       printf "Error: invalid option: -${OPTARG}\n" >&2
+      _usage
       exit 1
       ;;
   esac
@@ -217,11 +262,15 @@ _searched_word=$1
 _init
 
 [[ -z $_searched_word ]] && {
-  printf 'Error: missing word to search\n' >&2
+  printf '%s\n%s\n' \
+    'Error: Missing word to search.' \
+    "Run $self -u for usage." >&2
   exit 1
 }
 [[ -z $SYNONYM_THESAURUS_KEY ]] && {
-  printf 'Error: api key not found in synonymrc\n' >&2
+  printf '%s\n%s\n' \
+    'Error: api key not found in synonymrc.' \
+    "Run $self -h for help." >&2
   exit 1
 }
 [[ -z $_synonym_language ]] && _synonym_language="$(_get_language)"

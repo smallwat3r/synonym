@@ -60,7 +60,7 @@ sudo wget https://raw.githubusercontent.com/smallwat3r/synonym/master/synonym \
 ```
 
 #### .synonymrc
-You will need to create a .synonymrc config file in one of the loc below.  
+You will need to create a .synonymrc config file in one of the location below.  
 ```sh
 # Possible config file locations (in order of priority)
 
@@ -84,7 +84,7 @@ SYNONYM_THESAURUS_KEY=<API KEY>
 #   it, no, pl, pt, ro, ru, sk
 SYNONYM_SEARCH_LANG=en
 ```
-Note: if no language is set in .synonymrc, or specified in paramas, the default language 
+Note: if no language is set in .synonymrc, or specified in parameters, the default language 
 will be fetched from the os (`$LANGUAGE` or `$LANG`). If not supported by Thesaurus, or
 null, it will be set as default to `en_US`.  
 
@@ -102,8 +102,9 @@ Options:
   -l LANG      Finds all synonyms for this specific language.
                Languages supported: en, fr, cs, el, es, da, de,
                hu, it, no, pl, pt, ro, ru, sk
-  -v           Show program version number and exit.
   -h           Show help message and exit.
+  -u           Show usage and exit.
+  -v           Show program version number and exit.
 ```
 
 Examples  
