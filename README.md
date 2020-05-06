@@ -12,7 +12,8 @@
 synonym is a small utility tool to rapidly find synonyms directly
 from your terminal.
 
-The script is querying the [thesaurus](https://www.thesaurus.com/) API.  
+The script is querying the [thesaurus.com](https://www.thesaurus.com/) 
+API.  
 
 List of languages supported: 
 ```
