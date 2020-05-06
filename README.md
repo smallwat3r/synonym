@@ -1,13 +1,7 @@
+<h3 align="center">synonym</h3>
+<p align="center">Find synonyms in 15 different languages directly from your terminal.</p>
 
-```
-   .--.    _   __  _ .--.   .--.   _ .--.    _   __  _ .--..--.
-  ( (`\]  [ \ [  ][ `.-. |/ .'`\ \[ `.-. |  [ \ [  ][ `.-. .-. |
-   `'.'.   \ '/ /  | | | || \__. | | | | |   \ '/ /  | | | | | |
-  [\__) )[\_:  /  [___||__]'.__.' [___||__][\_:  /  [___||__||__]
-          \__.'                             \__.'
-```
-
-# synonym
+---
 
 synonym is a small utility tool to rapidly find synonyms directly
 from your terminal.
