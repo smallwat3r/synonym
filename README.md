@@ -6,7 +6,8 @@
 synonym is a small utility tool to rapidly find synonyms directly
 from your terminal.
 
-The script is fetching [thesaurus](https://www.thesaurus.com/) rest API.  
+The script is querying the [thesaurus.com](https://www.thesaurus.com/) 
+API.  
 
 List of languages supported: 
 ```
@@ -21,8 +22,8 @@ en, fr, cs, el, es, da, de, hu, it, no, pl, pt, ro, ru, sk
 You will need to generate an API key to use this script, you can
 do so at https://thesaurus.altervista.org/mykey  
 You can sign in with either Facebook, Google or Yahoo.  
-After the sign in process you will be redirect you to your API key.  
-You will need to store your API key in your `.synonymrc` file.  
+After the sign in process you will be redirected you to your API key.  
+You then need to store your API key in your `.synonymrc` file.  
 
 #### jq
 You will also need to install jq if you don't have it already
