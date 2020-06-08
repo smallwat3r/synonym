@@ -111,23 +111,16 @@ EOF
 }
 
 _compute() {
-  local _reach_error=$(
-    echo $1 |
-      jq -jr '(.error)'
-  )
+  local _reach_error=$(echo $1 | jq -jr '(.error)')
 
   # Check erros
-  [[ $_reach_error != "null" ]] &&
-    {
-      printf "Error: $_reach_error\n" >&2
-      exit 1
-    }
+  [[ $_reach_error != "null" ]] && {
+    printf "Error: $_reach_error\n" >&2
+    exit 1
+  }
 
   # process json response with jq
-  local _process_result=$(
-    echo $1 |
-      jq '(.response | .[] .list .synonyms)'
-  )
+  local _process_result=$(echo $1 | jq '(.response | .[] .list .synonyms)')
 
   # use tr '"' "|" here instead of jq -r in process() to make sure all
   # words can be parsed in a different column. Indeed the json output
@@ -141,8 +134,7 @@ _compute() {
       sort -u
   )
 
-  printf "$_clean_data\n" |
-    column -c $(tput cols)
+  printf "$_clean_data\n" | column -c $(tput cols)
 }
 
 _default_os_language() {
@@ -155,10 +147,7 @@ _default_os_language() {
     fr_FR|hu_HU|it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)"
 
   # remove extention from os language var (ie. fr_FR.UTF-8 > fr_FR)
-  local _lang=$(
-    echo $1 |
-      sed 's/\..*//'
-  )
+  local _lang=$(echo $1 | sed 's/\..*//')
 
   case $_lang in
     $_supported) echo "$_lang" ;;
@@ -213,11 +202,10 @@ _init() {
   )
   local _d
   for _d in "${_conf_dir[@]}"; do
-    [[ -f $_d ]] &&
-      {
-        source $_d
-        return
-      }
+    [[ -f $_d ]] && {
+      source $_d
+      return
+    }
   done
 
   printf '%s\n%s\n' \
@@ -227,13 +215,12 @@ _init() {
 }
 
 # Dependencies
-command -v jq >/dev/null 2>&1 ||
-  {
-    printf '%s\n%s\n' \
-      "Error: You need to install jq to run $self." \
-      'https://stedolan.github.io/jq/download/' >&2
-    exit 1
-  }
+command -v jq >/dev/null 2>&1 || {
+  printf '%s\n%s\n' \
+    "Error: You need to install jq to run $self." \
+    'https://stedolan.github.io/jq/download/' >&2
+  exit 1
+}
 
 # Params
 options=":l:huv"
@@ -267,20 +254,18 @@ shift $((OPTIND - 1))
 _searched_word=$1
 _init
 
-[[ -z $_searched_word ]] &&
-  {
-    printf '%s\n%s\n' \
-      'Error: Missing word to search.' \
-      "Run $self -u for usage." >&2
-    exit 1
-  }
-[[ -z $SYNONYM_THESAURUS_KEY ]] &&
-  {
-    printf '%s\n%s\n' \
-      'Error: api key not found in synonymrc.' \
-      "Run $self -h for help." >&2
-    exit 1
-  }
+[[ -z $_searched_word ]] && {
+  printf '%s\n%s\n' \
+    'Error: Missing word to search.' \
+    "Run $self -u for usage." >&2
+  exit 1
+}
+[[ -z $SYNONYM_THESAURUS_KEY ]] && {
+  printf '%s\n%s\n' \
+    'Error: api key not found in synonymrc.' \
+    "Run $self -h for help." >&2
+  exit 1
+}
 [[ -z $_synonym_language ]] && _synonym_language="$(_get_language)"
 
 _url="https://thesaurus.altervista.org/thesaurus/v1\
