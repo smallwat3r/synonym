@@ -37,6 +37,7 @@
 # https://thesaurus.altervista.org/mykey
 
 set -e
+
 self=${0##*/}
 version="$self v1.3 (Matthieu Petiteau)"
 
@@ -110,18 +111,16 @@ Options:
 EOF
 }
 
+# Compute response from thesaurus API.
 _compute() {
+  # Check for any erros.
   local _reach_error=$(echo $1 | jq -jr '(.error)')
-
-  # Check erros
   [[ $_reach_error != "null" ]] && {
     printf "Error: $_reach_error\n" >&2
     exit 1
   }
 
-  # process json response with jq
   local _process_result=$(echo $1 | jq '(.response | .[] .list .synonyms)')
-
   # use tr '"' "|" here instead of jq -r in process() to make sure all
   # words can be parsed in a different column. Indeed the json output
   # from Thesaurus can be split in multiple data sets. So we use the
@@ -133,28 +132,27 @@ _compute() {
       sed 's/([^)]*)//g' |
       sort -u
   )
-
   printf "$_clean_data\n" | column -c $(tput cols)
 }
 
+# Associate os default language if supported by Thesaurus API
+# and no language is set in synonymrc or specified in args.
 _default_os_language() {
-  # associate os default language if supported by thesaurus API
-  # and no language is set in synonymrc or specified in args
   shopt -s extglob
 
-  # supported languages values by Thesaurus API
+  # Supported languages values by Thesaurus API.
   local _supported="@(cs_CZ|da_DK|de_CH|de_DE|en_US|el_GR|es_ES|
     fr_FR|hu_HU|it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)"
 
-  # remove extention from os language var (ie. fr_FR.UTF-8 > fr_FR)
+  # Remove extention from os language var (ie. fr_FR.UTF-8 > fr_FR).
   local _lang=$(echo $1 | sed 's/\..*//')
-
   case $_lang in
     $_supported) echo "$_lang" ;;
     *) echo 'en_US' ;; # default if not supported
   esac
 }
 
+# Language index from Thesaurus.
 _language_index() {
   case $1 in
     en) echo 'en_US' ;;
@@ -181,11 +179,11 @@ _language_index() {
   esac
 }
 
+# Get default language.
 _get_language() {
-  # if default language not set in .synonymrc
-  if [[ -z $SYNONYM_SEARCH_LANG ]]; then
-    # check default language on system, defaults to en_US if not
-    # supported or not found.
+  if [[ -z $SYNONYM_SEARCH_LANG ]]; then # Default language not set in .synonymrc
+    # Check for default language on system, then
+    # defaults to en_US if not supported or not found.
     [[ ! -z $LANGUAGE ]] &&
       _default_os_language $LANGUAGE ||
       _default_os_language $LANG
@@ -194,12 +192,14 @@ _get_language() {
   fi
 }
 
+# Loads config.
 _init() {
   local _conf_dir=(
     $XDG_CONFIG_HOME/.synonymrc
     $HOME/.config/.synonymrc
     $HOME/.synonymrc
   )
+
   local _d
   for _d in "${_conf_dir[@]}"; do
     [[ -f $_d ]] && {
@@ -272,4 +272,3 @@ _url="https://thesaurus.altervista.org/thesaurus/v1\
 ?word=$_searched_word&language=$_synonym_language&key=$SYNONYM_THESAURUS_KEY&output=json"
 
 _compute "$(curl -s $_url)"
-exit 0
