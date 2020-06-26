@@ -25,36 +25,36 @@ You can sign in with either Facebook, Google or Yahoo.
 After the sign in process you will be redirected you to your API key.  
 You then need to store your API key in your `.synonymrc` file.  
 
-#### jq
-You will also need to install jq if you don't have it already
-https://stedolan.github.io/jq/download/  
+## Installation
+
+#### Using Homebrew  
+
+```sh
+brew tap smallwat3r/synonym \
+  && brew install synonym
+```
+
+#### Manual install
+
+To run synonym you will need to install 
+[jq](https://stedolan.github.io/jq/download) 
 ```sh
 brew install jq          # macos
 sudo apt-get install jq  # debian / ubuntu
 ```
 
-## How to install it?
-Clone this repository and run the following commands.  
+then
 ```sh
 git clone https://github.com/smallwat3r/synonym.git \
-  && cd synonym \
-  && make install
+  && cd synonym && make install
 ```
-
-or  
-```sh
-git clone https://github.com/smallwat3r/synonym.git \
-  && cd synonym \ 
-  && cp synonym /usr/local/bin/synonym && chmod 755 /usr/local/bin/synonym
-```
-
 or (without cloning)  
 ```sh
 sudo wget https://raw.githubusercontent.com/smallwat3r/synonym/master/synonym \
     -P /usr/local/bin && sudo chmod 755 /usr/local/bin/synonym
 ```
 
-#### .synonymrc
+### Config file
 You will need to create a .synonymrc config file in one of the location below.  
 ```sh
 # Possible config file locations (in order of priority)
