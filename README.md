@@ -30,7 +30,7 @@ You then need to store your API key in your `.synonymrc` file.
 #### Using Homebrew  
 
 ```sh
-brew tap smallwat3r/synonym \
+brew tap smallwat3r/scripts \
   && brew install synonym
 ```
 
