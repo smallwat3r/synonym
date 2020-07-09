@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#
+
 # MIT License
 #
 # Copyright (c) 2020 Matthieu Petiteau
@@ -21,34 +21,20 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-#
-#   .--.    _   __  _ .--.   .--.   _ .--.    _   __  _ .--..--.
-#  ( (`\]  [ \ [  ][ `.-. |/ .'`\ \[ `.-. |  [ \ [  ][ `.-. .-. |
-#   `'.'.   \ '/ /  | | | || \__. | | | | |   \ '/ /  | | | | | |
-#  [\__) )[\_:  /  [___||__]'.__.' [___||__][\_:  /  [___||__||__]
-#          \__.'                             \__.'
-#
-#
+
 # Print out synonyms from the Thesaurus API.
 #
 # Dependencies: jq
 #
 # You will also need a Thesaurus API key provided at
 # https://thesaurus.altervista.org/mykey
-
 set -e
 
 self=${0##*/}
-version="$self v1.3 (Matthieu Petiteau)"
+version="$self v1.4.1 (Matthieu Petiteau)"
 
 _info() {
   cat <<EOF
- .--.    _   __  _ .--.   .--.   _ .--.    _   __  _ .--..--.
-( (\`\]  [ \ [  ][ \`.-. |/ .'\`\ \[ \`.-. |  [ \ [  ][ \`.-. .-. |
- \`'.'.   \ '/ /  | | | || \__. | | | | |   \ '/ /  | | | | | |
-[\__) )[\_:  /  [___||__]'.__.' [___||__][\_:  /  [___||__||__]
-       \__.'                             \__.'
-
 $self is a small utility tool to find synonyms in different language
 directly from the terminal.
 
@@ -114,25 +100,30 @@ EOF
 # Compute response from thesaurus API.
 _compute() {
   # Check for any erros.
-  local _reach_error=$(echo $1 | jq -jr '(.error)')
+  local _reach_error
+  _reach_error=$(echo "$1" | jq -jr '(.error)')
+
   [[ $_reach_error != "null" ]] && {
-    printf "Error: $_reach_error\n" >&2
+    printf 'Error: %s\n' "$_reach_error" >&2
     exit 1
   }
 
-  local _process_result=$(echo $1 | jq '(.response | .[] .list .synonyms)')
+  local _process_result
+  _process_result=$(echo "$1" | jq '(.response | .[] .list .synonyms)')
+
   # use tr '"' "|" here instead of jq -r in process() to make sure all
   # words can be parsed in a different column. Indeed the json output
   # from Thesaurus can be split in multiple data sets. So we use the
   # default " from jq to append a new line as well as the |.
-  local _clean_data=$(
-    echo $_process_result |
+  local _clean_data
+  _clean_data=$(
+    echo "$_process_result" |
       tr '"' '|' |
       tr '|' '\n' |
       sed 's/([^)]*)//g' |
       sort -u
   )
-  printf "$_clean_data\n" | column -c $(tput cols)
+  printf '%s\n' "$_clean_data" | column -c "$(tput cols)"
 }
 
 # Associate os default language if supported by Thesaurus API
@@ -145,9 +136,11 @@ _default_os_language() {
     fr_FR|hu_HU|it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)"
 
   # Remove extention from os language var (ie. fr_FR.UTF-8 > fr_FR).
-  local _lang=$(echo $1 | sed 's/\..*//')
+  local _lang
+  _lang=${1%%.*}
+
   case $_lang in
-    $_supported) echo "$_lang" ;;
+    "$_supported") echo "$_lang" ;;
     *) echo 'en_US' ;; # default if not supported
   esac
 }
@@ -184,26 +177,30 @@ _get_language() {
   if [[ -z $SYNONYM_SEARCH_LANG ]]; then # Default language not set in .synonymrc
     # Check for default language on system, then
     # defaults to en_US if not supported or not found.
-    [[ ! -z $LANGUAGE ]] &&
-      _default_os_language $LANGUAGE ||
-      _default_os_language $LANG
+    if [[ -n $LANGUAGE ]]; then
+      _default_os_language "$LANGUAGE"
+    else
+      _default_os_language "$LANG"
+    fi
   else
-    _default_os_language $SYNONYM_SEARCH_LANG
+    local _default_lang
+    _default_lang=$(_language_index "$SYNONYM_SEARCH_LANG")
+    _default_os_language "$_default_lang"
   fi
 }
 
 # Loads config.
 _init() {
   local _conf_dir=(
-    $XDG_CONFIG_HOME/.synonymrc
-    $HOME/.config/.synonymrc
-    $HOME/.synonymrc
+    "$XDG_CONFIG_HOME/.synonymrc"
+    "$HOME/.config/.synonymrc"
+    "$HOME/.synonymrc"
   )
 
   local _d
   for _d in "${_conf_dir[@]}"; do
     [[ -f $_d ]] && {
-      source $_d
+      source "$_d"
       return
     }
   done
@@ -225,9 +222,9 @@ command -v jq >/dev/null 2>&1 || {
 # Params
 options=":l:huv"
 while getopts "$options" option; do
-  case "${option}" in
+  case "$option" in
     l)
-      _synonym_language="$(_language_index ${OPTARG})"
+      _synonym_language=$(_language_index "$OPTARG")
       ;;
     h)
       _info
@@ -239,11 +236,11 @@ while getopts "$options" option; do
       exit 0
       ;;
     v)
-      printf "$version\n"
+      printf '%s\n' "$version"
       exit 0
       ;;
     \?)
-      printf "Error: invalid option: -${OPTARG}\n" >&2
+      printf 'Error: invalid option: -%s\n' "$OPTARG" >&2
       _usage
       exit 1
       ;;
@@ -251,7 +248,7 @@ while getopts "$options" option; do
 done
 
 shift $((OPTIND - 1))
-_searched_word=$1
+_searched_word="$1"
 _init
 
 [[ -z $_searched_word ]] && {
@@ -271,4 +268,4 @@ _init
 _url="https://thesaurus.altervista.org/thesaurus/v1\
 ?word=$_searched_word&language=$_synonym_language&key=$SYNONYM_THESAURUS_KEY&output=json"
 
-_compute "$(curl -s $_url)"
+_compute "$(curl -s "$_url")"
