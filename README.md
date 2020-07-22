@@ -6,7 +6,7 @@
 synonym is a small utility tool to rapidly find synonyms directly
 from your terminal.
 
-The script is querying the [thesaurus.com](https://www.thesaurus.com/) 
+The script is querying the [thesaurus.altervista.org](https://thesaurus.altervista.org)
 API.  
 
 List of languages supported: 
@@ -18,10 +18,10 @@ en, fr, cs, el, es, da, de, hu, it, no, pl, pt, ro, ru, sk
 
 ## What do you need?
 
-#### Thesaurus API key
-You will need to generate an API key to use this script, you can
-do so at https://thesaurus.altervista.org/mykey  
-You can sign in with either Facebook, Google or Yahoo.  
+#### API key
+You will need to generate an API key to use this script, you can do so
+at https://thesaurus.altervista.org/mykey  
+You can sign in with either Facebook or Google.  
 After the sign in process you will be redirected you to your API key.  
 You then need to store your API key in your `.synonymrc` file.  
 
@@ -55,7 +55,8 @@ sudo wget https://raw.githubusercontent.com/smallwat3r/synonym/master/synonym \
 ```
 
 ### Config file
-You will need to create a .synonymrc config file in one of the location below.  
+You will need to create a .synonymrc config file in one of the 
+location below.  
 ```sh
 # Possible config file locations (in order of priority)
 
@@ -64,8 +65,8 @@ $XDG_CONFIG_HOME/.synonymrc
 ~/.synonymrc
 ```
 
-In this file, you can chose a default language and you will need to input your API 
-key from thesaurus.
+In this file, you can chose a default language and you will need to 
+input your API key.
 
 ```sh
 # .synonymrc example
@@ -74,14 +75,15 @@ key from thesaurus.
 SYNONYM_THESAURUS_KEY=<API KEY>
 
 # Default language
-# List of languages available:
+# List of languages supported:
 #   en, fr, cs, el, es, da, de, hu,
 #   it, no, pl, pt, ro, ru, sk
 SYNONYM_SEARCH_LANG=en
 ```
-Note: if no language is set in .synonymrc, or specified in parameters, the default language 
-will be fetched from the os (`$LANGUAGE` or `$LANG`). If not supported by Thesaurus, or
-null, it will be set as default to `en_US`.  
+Note: if no language is set in .synonymrc, or specified in parameters,
+the default language will be fetched from the os (`$LANGUAGE` or
+`$LANG`). If not supported by the API, or null, it will be set as
+default to `en_US`.  
 
 You are now all set-up to run synonym in your terminal.  
 

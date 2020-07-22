@@ -22,27 +22,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Print out synonyms from the Thesaurus API.
+# Print out synonyms.
 #
 # Dependencies: jq
 #
-# You will also need a Thesaurus API key provided at
+# You will also need an API key provided at
 # https://thesaurus.altervista.org/mykey
 set -e
 
 self=${0##*/}
-version="$self v1.4.1 (Matthieu Petiteau)"
+version="$self v1.4.2"
 
 _info() {
   cat <<EOF
 $self is a small utility tool to find synonyms in different language
 directly from the terminal.
 
-The script is fetching https://www.thesaurus.com/ rest API.
-List of languages available: en, fr, cs, el, es, da, de, hu, it,
+List of languages supported: en, fr, cs, el, es, da, de, hu, it,
 no, pl, pt, ro, ru, sk
 
-Dependencies to run $self:
+Requirements to run $self:
 
   - Thesaurus API key from https://thesaurus.altervista.org/mykey
   - jq https://stedolan.github.io/jq/download/
@@ -55,15 +54,15 @@ the location below.
   ~/.synonymrc
 
 In this file, you can chose a default language and you will need
-to input your API key from Thesaurus.
+to input your API key.
 
 .synonymrc example:
 
-  # API KEY https://thesaurus.altervista.org/mykey
+  # API KEY from https://thesaurus.altervista.org/mykey
   SYNONYM_THESAURUS_KEY=<API KEY>
 
   # Default language
-  # List of languages available:
+  # List of languages supported:
   #   en, fr, cs, el, es, da, de, hu,
   #   it, no, pl, pt, ro, ru, sk
   SYNONYM_SEARCH_LANG=en
@@ -72,8 +71,8 @@ Note:
 
   If no language is set in .synonymrc, or specified in parameters,
   the default language will be fetched from the os (\$LANGUAGE or
-  \$LANG). If not supported by Thesaurus, or null, it will be set
-  as default to en_US.
+  \$LANG). If not supported, or null, it will be set as default to
+  en_US.
 
 Copyright 2020 Matthieu Petiteau, all rights reserved.
 $version
@@ -97,7 +96,7 @@ Options:
 EOF
 }
 
-# Compute response from thesaurus API.
+# Compute response from the API.
 _compute() {
   # Check for any erros.
   local _reach_error
@@ -113,7 +112,7 @@ _compute() {
 
   # use tr '"' "|" here instead of jq -r in process() to make sure all
   # words can be parsed in a different column. Indeed the json output
-  # from Thesaurus can be split in multiple data sets. So we use the
+  # from the API can be split in multiple data sets. So we use the
   # default " from jq to append a new line as well as the |.
   local _clean_data
   _clean_data=$(
@@ -126,12 +125,12 @@ _compute() {
   printf '%s\n' "$_clean_data" | column -c "$(tput cols)"
 }
 
-# Associate os default language if supported by Thesaurus API
+# Associate os default language if supported by the API
 # and no language is set in synonymrc or specified in args.
 _default_os_language() {
   shopt -s extglob
 
-  # Supported languages values by Thesaurus API.
+  # Supported languages values by the API.
   local _supported="@(cs_CZ|da_DK|de_CH|de_DE|en_US|el_GR|es_ES|
     fr_FR|hu_HU|it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)"
 
@@ -145,7 +144,7 @@ _default_os_language() {
   esac
 }
 
-# Language index from Thesaurus.
+# Language index table.
 _language_index() {
   case $1 in
     en) echo 'en_US' ;;
