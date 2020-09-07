@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Print out synonyms.
+# Finds synonyms for a given word in a specified language.
 #
 # Dependencies: jq
 #
@@ -31,7 +31,25 @@
 set -e
 
 self=${0##*/}
-version="$self v1.4.2"
+version="$self v1.4.3"
+
+_help() {
+  cat <<EOF
+Usage: $self [OPTION] WORD
+
+Finds synonyms for a given word in a specified language.
+Run $self -i for more information.
+
+Options:
+  -l LANG      Finds all synonyms for this specific language.
+               Languages supported: en, fr, cs, el, es, da, de,
+               hu, it, no, pl, pt, ro, ru, sk
+  -h           Show help message and exit.
+  -i           Show more help information and exit.
+  -v           Show program version number and exit.
+
+EOF
+}
 
 _info() {
   cat <<EOF
@@ -42,6 +60,7 @@ List of languages supported: en, fr, cs, el, es, da, de, hu, it,
 no, pl, pt, ro, ru, sk
 
 Requirements to run $self:
+============================
 
   - Thesaurus API key from https://thesaurus.altervista.org/mykey
   - jq https://stedolan.github.io/jq/download/
@@ -57,6 +76,7 @@ In this file, you can chose a default language and you will need
 to input your API key.
 
 .synonymrc example:
+===================
 
   # API KEY from https://thesaurus.altervista.org/mykey
   SYNONYM_THESAURUS_KEY=<API KEY>
@@ -67,31 +87,18 @@ to input your API key.
   #   it, no, pl, pt, ro, ru, sk
   SYNONYM_SEARCH_LANG=en
 
-Note:
+Notes:
+======
 
   If no language is set in .synonymrc, or specified in parameters,
   the default language will be fetched from the os (\$LANGUAGE or
   \$LANG). If not supported, or null, it will be set as default to
   en_US.
 
+---
+
 Copyright 2020 Matthieu Petiteau, all rights reserved.
 $version
-
-EOF
-}
-
-_usage() {
-  cat <<EOF
-Usage: $self [OPTION] WORD
-Finds all synonyms for a specific word in a specified language.
-
-Options:
-  -l LANG      Finds all synonyms for this specific language.
-               Languages supported: en, fr, cs, el, es, da, de,
-               hu, it, no, pl, pt, ro, ru, sk
-  -h           Show help message and exit.
-  -u           Show usage and exit.
-  -v           Show program version number and exit.
 
 EOF
 }
@@ -165,7 +172,7 @@ _language_index() {
     *)
       printf '%s\n%s\n' \
         "Error: Language $1 not supported." \
-        "Run $self -u for usage and see the list of supported languages." >&2
+        "Run $self -i for more information and see the list of supported languages." >&2
       exit 1
       ;;
   esac
@@ -205,8 +212,8 @@ _init() {
   done
 
   printf '%s\n%s\n' \
-    'Error: synonymrc file not found' \
-    "Run $self -h for help." >&2
+    'Error: .synonymrc file not found.' \
+    "Run $self -i for setup information." >&2
   exit 1
 }
 
@@ -219,19 +226,19 @@ command -v jq >/dev/null 2>&1 || {
 }
 
 # Params
-options=":l:huv"
+options=":l:hiv"
 while getopts "$options" option; do
   case "$option" in
     l)
       _synonym_language=$(_language_index "$OPTARG")
       ;;
     h)
-      _info
-      _usage
+      _help
       exit 0
       ;;
-    u)
-      _usage
+    i)
+      _info
+      _help
       exit 0
       ;;
     v)
@@ -240,7 +247,7 @@ while getopts "$options" option; do
       ;;
     \?)
       printf 'Error: invalid option: -%s\n' "$OPTARG" >&2
-      _usage
+      _help
       exit 1
       ;;
   esac
@@ -251,15 +258,14 @@ _searched_word="$1"
 _init
 
 [[ -z $_searched_word ]] && {
-  printf '%s\n%s\n' \
-    'Error: Missing word to search.' \
-    "Run $self -u for usage." >&2
+  printf 'Error: Missing word to search.\n' >&2
+  _help
   exit 1
 }
 [[ -z $SYNONYM_THESAURUS_KEY ]] && {
   printf '%s\n%s\n' \
-    'Error: api key not found in synonymrc.' \
-    "Run $self -h for help." >&2
+    'Error: API key not found in synonymrc.' \
+    "Run $self -i for setup information." >&2
   exit 1
 }
 [[ -z $_synonym_language ]] && _synonym_language="$(_get_language)"

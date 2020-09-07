@@ -92,14 +92,16 @@ You are now all set-up to run synonym in your terminal.
 ```console
 $ synonym -u
 Usage: synonym [OPTION] WORD
-Finds all synonyms for a specific word in a specified language.
+
+Finds synonyms for a given word in a specified language.
+Run synonym -i for more information.
 
 Options:
   -l LANG      Finds all synonyms for this specific language.
                Languages supported: en, fr, cs, el, es, da, de,
                hu, it, no, pl, pt, ro, ru, sk
   -h           Show help message and exit.
-  -u           Show usage and exit.
+  -i           Show more help information and exit.
   -v           Show program version number and exit.
 ```
 
