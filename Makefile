@@ -2,7 +2,7 @@
 SCRIPT := synonym
 
 install:
-	cp synonym /usr/local/bin/$(SCRIPT)
+	cp $(SCRIPT) /usr/local/bin/$(SCRIPT)
 	chmod 755 /usr/local/bin/$(SCRIPT)
 
 uninstall:
