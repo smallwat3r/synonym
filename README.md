@@ -46,7 +46,7 @@ sudo apt-get install jq  # debian / ubuntu
 then
 ```sh
 git clone https://github.com/smallwat3r/synonym.git \
-  && cd synonym && make install
+  && cd synonym && sudo make install
 ```
 or (without cloning)  
 ```sh
