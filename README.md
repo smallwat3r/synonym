@@ -3,13 +3,12 @@
 
 ---
 
-synonym is a small utility tool to rapidly find synonyms directly
-from your terminal.
-
-The script is querying the [thesaurus.altervista.org](https://thesaurus.altervista.org)
+**synonym** is a small utility tool to rapidly find synonyms directly
+from your terminal.  
+This util is querying the [thesaurus.altervista.org](https://thesaurus.altervista.org)
 API.  
 
-List of languages supported: 
+List of supported languages: 
 ```
 en, fr, cs, el, es, da, de, hu, it, no, pl, pt, ro, ru, sk
 ```
@@ -54,7 +53,8 @@ sudo wget https://raw.githubusercontent.com/smallwat3r/synonym/master/synonym \
     -P /usr/local/bin && sudo chmod 755 /usr/local/bin/synonym
 ```
 
-### Config file
+### Configuration file
+
 You will need to create a .synonymrc config file in one of the 
 location below.  
 ```sh
@@ -106,10 +106,21 @@ Options:
 ```
 
 Examples  
-```sh
-synonym happy
-synonym -l en happy
-synonym -l fr joyeux
-synonym -l it allegro 
-synonym -l de fröhlich 
+
+```console
+$ synonym happy
+blessed         cheerful        elated          felicitous      glad            joyful          prosperous      well-chosen
+blissful        content         euphoric        fortunate       golden          joyous          riant           willing 
+bright          contented       felicitous      glad            halcyon         laughing        unhappy 
+
+$ synonym -l fr joyeux
+agréable        badin           content         éclatant        étincelant      hilarant        plaisant        ravi            rieur
+aise            beau            désopilant      enchanté        fun             joie            plaisir         rayonnant       satisfait
+allègre         brillant        distrayant      enjoué          gai             jovial          radiant         réjoui          spirituel
+amusant         comblé          divertissant    ensoleillé      guilleret       jubilant        radieux         réjouissant
+amusement       comique         drôle           épanoui         heureux         lumineux        rassasié        riant
+
+$ synonym -l it allegro 
+beato           felice          gaudioso        giocoso         gioviale        lieto
+contento        gaio            giocondo        gioioso         ilare           raggiante
 ```
