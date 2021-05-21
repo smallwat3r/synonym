@@ -66,14 +66,14 @@ Requirements to run $self:
   - jq https://stedolan.github.io/jq/download/
 
 You will also need to create a .synonymrc config file in one of
-the location below.
+the locations below.
 
   \$XDG_CONFIG_HOME/.synonymrc
   ~/.config/.synonymrc
   ~/.synonymrc
 
-In this file, you can chose a default language and you will need
-to input your API key.
+In this file, you need to input your API key, and you can choose a
+default language.
 
 .synonymrc example:
 ===================
@@ -90,8 +90,8 @@ to input your API key.
 Notes:
 ======
 
-  If no language is set in .synonymrc, or specified in parameters,
-  the default language will be fetched from the os (\$LANGUAGE or
+  If no language is set in .synonymrc, or specified in the parameters,
+  the default language will be fetched from the OS (\$LANGUAGE or
   \$LANG). If not supported, or null, it will be set as default to
   en_US.
 

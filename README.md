@@ -56,7 +56,7 @@ sudo wget https://raw.githubusercontent.com/smallwat3r/synonym/master/synonym \
 ### Configuration file
 
 You will need to create a .synonymrc config file in one of the 
-location below.  
+locations below.  
 ```sh
 # Possible config file locations (by order of priority)
 
