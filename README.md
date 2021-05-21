@@ -3,10 +3,10 @@
 
 ---
 
-**synonym** is a small utility tool to rapidly find synonyms directly
-from your terminal.  
-This util is querying the [thesaurus.altervista.org](https://thesaurus.altervista.org)
-API.  
+**Synonym** is a small utility tool to find synonyms directly from the 
+command line.  
+It is using the [thesaurus.altervista.org](https://thesaurus.altervista.org)
+API to query for words.  
 
 List of supported languages: 
 ```
@@ -58,15 +58,15 @@ sudo wget https://raw.githubusercontent.com/smallwat3r/synonym/master/synonym \
 You will need to create a .synonymrc config file in one of the 
 location below.  
 ```sh
-# Possible config file locations (in order of priority)
+# Possible config file locations (by order of priority)
 
 $XDG_CONFIG_HOME/.synonymrc
 ~/.config/.synonymrc
 ~/.synonymrc
 ```
 
-In this file, you can chose a default language and you will need to 
-input your API key.
+In this file, you need to input your API key, and you can 
+choose a default language.
 
 ```sh
 # .synonymrc example
@@ -80,12 +80,12 @@ SYNONYM_THESAURUS_KEY=<API KEY>
 #   it, no, pl, pt, ro, ru, sk
 SYNONYM_SEARCH_LANG=en
 ```
-Note: if no language is set in .synonymrc, or specified in parameters,
-the default language will be fetched from the os (`$LANGUAGE` or
+Note: if no language is set in .synonymrc, or specified in the parameters,
+the default language will be fetched from the current OS (`$LANGUAGE` or
 `$LANG`). If not supported by the API, or null, it will be set as
 default to `en_US`.  
 
-You are now all set-up to run synonym in your terminal.  
+You are now all set to run synonym in your terminal.  
 
 ## How to use it?
 
