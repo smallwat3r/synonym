@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+#
 # MIT License
 #
 # Copyright (c) 2020 Matthieu Petiteau
@@ -21,256 +21,183 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+#
 # Finds synonyms for a given word in a specified language.
-#
-# Dependencies: jq
-#
-# You will also need an API key provided at
-# https://thesaurus.altervista.org/mykey
+# Dependencies: jq and you will also need an API key from https://thesaurus.altervista.org/mykey
 set -e
 
 self=${0##*/}
-version="$self v1.4.3"
+version="$self v1.4.4"
 
-_help() {
+show_help() {
   cat <<EOF
 Usage: $self [OPTION] WORD
 
-Finds synonyms for a given word in a specified language.
+Find synonyms for a given word in a specified language.
 Run $self -i for more information.
 
 Options:
-  -l LANG      Finds all synonyms for this specific language.
-               Languages supported: en, fr, cs, el, es, da, de,
+  -l LANG      Specify the language for synonyms.
+               Supported languages: en, fr, cs, el, es, da, de,
                hu, it, no, pl, pt, ro, ru, sk
   -h           Show help message and exit.
-  -i           Show more help information and exit.
-  -v           Show program version number and exit.
+  -i           Show detailed setup instructions and exit.
+  -v           Show program version and exit.
 
 EOF
 }
 
-_info() {
+show_info() {
   cat <<EOF
-$self is a small utility tool to find synonyms in different language
-directly from the terminal.
+$self is a utility tool to find synonyms in different languages directly from the terminal.
 
-List of languages supported: en, fr, cs, el, es, da, de, hu, it,
-no, pl, pt, ro, ru, sk
+Supported languages: en, fr, cs, el, es, da, de, hu, it, no, pl, pt, ro, ru, sk
 
-Requirements to run $self:
-============================
-
-  - Thesaurus API key from https://thesaurus.altervista.org/mykey
-  - jq https://stedolan.github.io/jq/download/
-
-You will also need to create a .synonymrc config file in one of
-the locations below.
-
-  \$XDG_CONFIG_HOME/.synonymrc
-  ~/.config/.synonymrc
-  ~/.synonymrc
-
-In this file, you need to input your API key, and you can choose a
-default language.
-
-.synonymrc example:
+Setup Instructions:
 ===================
+1. Obtain an API key from https://thesaurus.altervista.org/mykey
+2. Install jq: https://stedolan.github.io/jq/download/
+3. Create a .synonymrc config file in:
+   - \$XDG_CONFIG_HOME/.synonymrc
+   - ~/.config/.synonymrc
+   - ~/.synonymrc
 
-  # API KEY from https://thesaurus.altervista.org/mykey
-  SYNONYM_THESAURUS_KEY=<API KEY>
+Example .synonymrc:
+===================
+SYNONYM_THESAURUS_KEY=<API_KEY>
+SYNONYM_SEARCH_LANG=en
 
-  # Default language
-  # List of languages supported:
-  #   en, fr, cs, el, es, da, de, hu,
-  #   it, no, pl, pt, ro, ru, sk
-  SYNONYM_SEARCH_LANG=en
-
-Notes:
-======
-
-  If no language is set in .synonymrc, or specified in the parameters,
-  the default language will be fetched from the OS (\$LANGUAGE or
-  \$LANG). If not supported, or null, it will be set as default to
-  en_US.
-
----
-
-Copyright 2020 Matthieu Petiteau, all rights reserved.
-$version
+Default language:
+=================
+If no language is specified, the script uses \$LANGUAGE or \$LANG as default.
+Unsupported or unset languages default to en_US.
 
 EOF
 }
 
-# Compute response from the API.
-_compute() {
-  # Check for any erros.
-  local _reach_error
-  _reach_error=$(echo "$1" | jq -jr '(.error)')
+process_response() {
+  local response="$1"
 
-  [[ $_reach_error != "null" ]] && {
-    printf 'Error: %s\n' "$_reach_error" >&2
+  # check for errors in the API response
+  local error
+  error=$(echo "$response" | jq -r '.error // empty')
+  if [[ -n $error ]]; then
+    echo "Error: $error" >&2
     exit 1
-  }
+  fi
 
-  local _process_result
-  _process_result=$(echo "$1" | jq '(.response | .[] .list .synonyms)')
-
-  # use tr '"' "|" here instead of jq -r in process() to make sure all
-  # words can be parsed in a different column. Indeed the json output
-  # from the API can be split in multiple data sets. So we use the
-  # default " from jq to append a new line as well as the |.
-  local _clean_data
-  _clean_data=$(
-    echo "$_process_result" |
-      tr '"' '|' |
-      tr '|' '\n' |
-      sed 's/([^)]*)//g' |
-      sort -u
-  )
-  printf '%s\n' "$_clean_data" | column -c "$(tput cols)"
+  # extract and clean synonyms
+  echo "$response" |
+    jq -r '.response[].list.synonyms' |
+    tr '"' '|' |
+    tr '|' '\n' |
+    sed 's/([^)]*)//g' |
+    sort -u |
+    column -c "$(tput cols)"
 }
 
-# Associate os default language if supported by the API
-# and no language is set in synonymrc or specified in args.
-_default_os_language() {
-  shopt -s extglob
+# determine default language
+get_default_language() {
+  local os_lang=${LANGUAGE:-$LANG}
+  os_lang=${os_lang%%.*}  # remove encoding (e.g., fr_FR.UTF-8 -> fr_FR)
 
-  # Supported languages values by the API.
-  local _supported="@(cs_CZ|da_DK|de_CH|de_DE|en_US|el_GR|es_ES|
-    fr_FR|hu_HU|it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)"
-
-  # Remove extention from os language var (ie. fr_FR.UTF-8 > fr_FR).
-  local _lang
-  _lang=${1%%.*}
-
-  case $_lang in
-    "$_supported") echo "$_lang" ;;
-    *) echo 'en_US' ;; # default if not supported
+  case $os_lang in
+    cs_CZ|da_DK|de_DE|el_GR|en_US|es_ES|fr_FR|hu_HU|it_IT|no_NO|pl_PL|pt_PT|ro_RO|ru_RU|sk_SK)
+      echo "$os_lang"
+      ;;
+    *)
+      echo "en_US"
+      ;;
   esac
 }
 
-# Language index table.
-_language_index() {
-  case $1 in
-    en) echo 'en_US' ;;
-    fr) echo 'fr_FR' ;;
-    cs) echo 'cs_CZ' ;;
-    es) echo 'es_ES' ;;
-    el) echo 'el_GR' ;;
-    da) echo 'da_DK' ;;
-    de) echo 'de_DE' ;;
-    hu) echo 'hu_HU' ;;
-    it) echo 'it_IT' ;;
-    no) echo 'no_NO' ;;
-    pl) echo 'pl_PL' ;;
-    pt) echo 'pt_PT' ;;
-    ro) echo 'ro_RO' ;;
-    ru) echo 'ru_RU' ;;
-    sk) echo 'sk_SK' ;;
+# map short language codes to full codes
+map_language() {
+  case "$1" in
+    en) echo "en_US" ;;
+    fr) echo "fr_FR" ;;
+    cs) echo "cs_CZ" ;;
+    el) echo "el_GR" ;;
+    es) echo "es_ES" ;;
+    da) echo "da_DK" ;;
+    de) echo "de_DE" ;;
+    hu) echo "hu_HU" ;;
+    it) echo "it_IT" ;;
+    no) echo "no_NO" ;;
+    pl) echo "pl_PL" ;;
+    pt) echo "pt_PT" ;;
+    ro) echo "ro_RO" ;;
+    ru) echo "ru_RU" ;;
+    sk) echo "sk_SK" ;;
     *)
-      printf '%s\n%s\n' \
-        "Error: Language $1 not supported." \
-        "Run $self -i for more information and see the list of supported languages." >&2
+      echo "Error: Unsupported language: $1" >&2
       exit 1
       ;;
   esac
 }
 
-# Get default language.
-_get_language() {
-  if [[ -z $SYNONYM_SEARCH_LANG ]]; then # Default language not set in .synonymrc
-    # Check for default language on system, then
-    # defaults to en_US if not supported or not found.
-    if [[ -n $LANGUAGE ]]; then
-      _default_os_language "$LANGUAGE"
-    else
-      _default_os_language "$LANG"
-    fi
-  else
-    local _default_lang
-    _default_lang=$(_language_index "$SYNONYM_SEARCH_LANG")
-    _default_os_language "$_default_lang"
-  fi
-}
-
-# Loads config.
-_init() {
-  local _conf_dir=(
+load_config() {
+  local config_files=(
     "$XDG_CONFIG_HOME/.synonymrc"
     "$HOME/.config/.synonymrc"
     "$HOME/.synonymrc"
   )
 
-  local _d
-  for _d in "${_conf_dir[@]}"; do
-    [[ -f $_d ]] && {
-      source "$_d"
+  for config_file in "${config_files[@]}"; do
+    if [[ -f $config_file ]]; then
+      # shellcheck source=/dev/null
+      source "$config_file"
       return
-    }
+    fi
   done
 
-  printf '%s\n%s\n' \
-    'Error: .synonymrc file not found.' \
-    "Run $self -i for setup information." >&2
+  echo "Error: .synonymrc not found. Run $self -i for setup information." >&2
   exit 1
 }
 
-# Dependencies
-command -v jq >/dev/null 2>&1 || {
-  printf '%s\n%s\n' \
-    "Error: You need to install jq to run $self." \
-    'https://stedolan.github.io/jq/download/' >&2
-  exit 1
+validate_dependencies() {
+  command -v jq >/dev/null 2>&1 || {
+    echo "Error: jq is required but not installed. Visit https://stedolan.github.io/jq/download/" >&2
+    exit 1
+  }
 }
 
-# Params
-options=":l:hiv"
-while getopts "$options" option; do
-  case "$option" in
-    l)
-      _synonym_language=$(_language_index "$OPTARG")
-      ;;
-    h)
-      _help
-      exit 0
-      ;;
-    i)
-      _info
-      _help
-      exit 0
-      ;;
-    v)
-      printf '%s\n' "$version"
-      exit 0
-      ;;
-    \?)
-      printf 'Error: invalid option: -%s\n' "$OPTARG" >&2
-      _help
-      exit 1
-      ;;
-  esac
-done
+main() {
+  local language=""
+  local word=""
 
-shift $((OPTIND - 1))
-_searched_word="$1"
-_init
+  while getopts "l:hiv" option; do
+    case "$option" in
+      l) language=$(map_language "$OPTARG") ;;
+      h) show_help; exit 0 ;;
+      i) show_info; exit 0 ;;
+      v) echo "$version"; exit 0 ;;
+      *) show_help; exit 1 ;;
+    esac
+  done
+  shift $((OPTIND - 1))
 
-[[ -z $_searched_word ]] && {
-  printf 'Error: Missing word to search.\n' >&2
-  _help
-  exit 1
+  word="$1"
+  if [[ -z $word ]]; then
+    echo "Error: Missing word to search." >&2
+    show_help
+    exit 1
+  fi
+
+  validate_dependencies
+  load_config
+
+  language=${language:-$(map_language "${SYNONYM_SEARCH_LANG:-$(get_default_language)}")}
+  if [[ -z $SYNONYM_THESAURUS_KEY ]]; then
+    echo "Error: API key not found in .synonymrc." >&2
+    exit 1
+  fi
+
+  local api_url="https://thesaurus.altervista.org/thesaurus/v1?word=$word&language=$language&key=$SYNONYM_THESAURUS_KEY&output=json"
+  local response
+  response=$(curl -s "$api_url")
+
+  process_response "$response"
 }
-[[ -z $SYNONYM_THESAURUS_KEY ]] && {
-  printf '%s\n%s\n' \
-    'Error: API key not found in synonymrc.' \
-    "Run $self -i for setup information." >&2
-  exit 1
-}
-[[ -z $_synonym_language ]] && _synonym_language="$(_get_language)"
 
-_url="https://thesaurus.altervista.org/thesaurus/v1\
-?word=$_searched_word&language=$_synonym_language&key=$SYNONYM_THESAURUS_KEY&output=json"
-
-_compute "$(curl -s "$_url")"
+main "$@"
